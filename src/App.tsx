@@ -26,7 +26,8 @@ import {
   LogOut,
   User,
   Menu,
-  X
+  X,
+  Target
 } from 'lucide-react';
 import { useStore } from './store/useStore';
 import { isSupabaseConfigured } from './lib/supabase';
@@ -125,6 +126,8 @@ function App() {
       case 'fiverr': return <ShoppingBag size={14} />;
       case 'reddit': return <MessageCircle size={14} />;
       case 'google': return <Globe size={14} />;
+      case 'trending': return <TrendingUp size={14} />;
+      case 'competitor': return <Target size={14} />;
       default: return <Tag size={14} />;
     }
   };
@@ -134,6 +137,8 @@ function App() {
       case 'fiverr': return 'source-fiverr';
       case 'reddit': return 'source-reddit';
       case 'google': return 'source-google';
+      case 'trending': return 'source-trending';
+      case 'competitor': return 'source-competitor';
       default: return '';
     }
   };
@@ -316,15 +321,23 @@ function App() {
               <div className="features-row">
                 <div className="feature-item">
                   <ShoppingBag size={18} className="feature-icon fiverr" />
-                  <span>Fiverr Trends</span>
+                  <span>Fiverr</span>
                 </div>
                 <div className="feature-item">
                   <MessageCircle size={18} className="feature-icon reddit" />
-                  <span>Reddit Insights</span>
+                  <span>Reddit</span>
                 </div>
                 <div className="feature-item">
                   <Globe size={18} className="feature-icon google" />
-                  <span>Google Keywords</span>
+                  <span>Google</span>
+                </div>
+                <div className="feature-item">
+                  <TrendingUp size={18} className="feature-icon trending" />
+                  <span>Trending</span>
+                </div>
+                <div className="feature-item">
+                  <Target size={18} className="feature-icon competitor" />
+                  <span>Competitor Gap</span>
                 </div>
               </div>
             </div>
@@ -365,27 +378,49 @@ function App() {
                 </button>
               </div>
 
-              <div className="keywords-grid">
-                {['fiverr', 'reddit', 'google'].map(source => (
+              <div className="keywords-grid keywords-grid-5">
+                {['fiverr', 'reddit', 'google', 'trending', 'competitor'].map(source => (
                   <div key={source} className={`keywords-column glass-card ${getSourceColor(source)}`}>
                     <div className="column-header">
                       {getSourceIcon(source)}
-                      <h3>{source.charAt(0).toUpperCase() + source.slice(1)} Keywords</h3>
+                      <h3>{source === 'competitor' ? 'Competitor Gap' : source.charAt(0).toUpperCase() + source.slice(1)} Keywords</h3>
                     </div>
                     <div className="keywords-list">
                       {keywords
                         .filter((k: KeywordData) => k.source === source)
-                        .sort((a: KeywordData, b: KeywordData) => b.relevance - a.relevance)
+                        .sort((a: KeywordData, b: KeywordData) => (b.trendingScore || 0) - (a.trendingScore || 0))
                         .map((keyword: KeywordData, idx: number) => (
-                          <div key={idx} className="keyword-item">
+                          <div key={idx} className="keyword-item keyword-item-rich">
                             <div className="keyword-main">
                               <span className="keyword-text">{keyword.keyword}</span>
+                              {keyword.trend === 'hot' && <span className="hot-badge">🔥</span>}
                               {getTrendIcon(keyword.trend)}
+                            </div>
+                            <div className="keyword-metrics">
+                              <div className="metric-row">
+                                <span className={`intent-badge intent-${keyword.buyerIntent || 'medium'}`}>
+                                  {keyword.buyerIntent === 'high' ? '💰 High Intent' : keyword.buyerIntent === 'medium' ? '👀 Medium' : '📖 Low'}
+                                </span>
+                                {keyword.trendingScore && keyword.trendingScore >= 80 && (
+                                  <span className="trending-badge">📈 {keyword.trendingScore}</span>
+                                )}
+                              </div>
+                              <div className="metric-row">
+                                <span className={`difficulty-badge diff-${keyword.difficulty && keyword.difficulty <= 30 ? 'easy' : keyword.difficulty && keyword.difficulty <= 60 ? 'medium' : 'hard'}`}>
+                                  Diff: {keyword.difficulty || 50}
+                                </span>
+                                <span className={`volume-badge vol-${keyword.searchVolume || 'medium'}`}>
+                                  Vol: {keyword.searchVolume || 'medium'}
+                                </span>
+                              </div>
                             </div>
                             <div className="keyword-meta">
                               <span className={`competition-badge ${keyword.competition}`}>
                                 {keyword.competition}
                               </span>
+                              {keyword.competitorUsage === 'rare' && (
+                                <span className="opportunity-badge">💎 Opportunity</span>
+                              )}
                               <span className="relevance-score">{keyword.relevance}%</span>
                             </div>
                           </div>

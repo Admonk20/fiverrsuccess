@@ -1,34 +1,110 @@
 import OpenAI from 'openai';
 import type { GeneratedGig, KeywordData } from '../types';
 
-const KEYWORD_RESEARCH_PROMPT = `You are a top Fiverr keyword research expert. Your job is to find SPECIFIC, actionable keywords that actual Fiverr buyers search for.
+const KEYWORD_RESEARCH_PROMPT = `You are an elite Fiverr keyword research expert with access to deep market intelligence. Perform comprehensive keyword research for this service.
 
 Service/Niche: "{query}"
 
-RULES FOR KEYWORDS:
-1. Be ULTRA-SPECIFIC - no generic terms like "professional" or "quality"
-2. Include buyer intent phrases (e.g., "urgent logo needed", "fix my website", "edit my video")
-3. Include price-related searches (e.g., "cheap logo design", "affordable video editing")
-4. Include format-specific terms (e.g., "transparent PNG logo", "4K video edit", "wordpress fix")
-5. Include pain points (e.g., "logo revision", "quick turnaround", "same day delivery")
+===== DEEP RESEARCH METHODOLOGY =====
 
-FOR EACH SOURCE:
-- **Fiverr**: What buyers actually type in search. Use action words + specifics.
-- **Reddit**: What people ask for in r/forhire, r/slavelabour, r/freelance. Real phrases from posts.
-- **Google**: Commercial searches with buyer intent. "hire [service]", "[service] near me", "best [service]"
+**PHASE 1: Core Fiverr Keywords (8 keywords)**
+Research what buyers ACTUALLY type on Fiverr:
+- Action-based: "I need", "help me", "create my", "fix my"
+- Urgent: "urgent", "asap", "same day", "rush"
+- Budget: "cheap", "affordable", "budget", "best value"
+- Quality: "premium", "professional", "high quality", "expert"
+- Format-specific: Include file types, dimensions, platforms
 
-Return EXACTLY this JSON (no markdown):
+**PHASE 2: Reddit/Forum Keywords (6 keywords)**
+Phrases from r/forhire, r/slavelabour, r/freelance, Discord servers:
+- Real questions people ask
+- Pain points they describe
+- Specific outcomes they want
+
+**PHASE 3: Google/SEO Keywords (6 keywords)**
+Commercial intent searches:
+- "hire [service] online"
+- "best [service] freelancer"
+- "[service] for small business"
+- Comparison searches: "[service] vs [alternative]"
+
+**PHASE 4: Trending & Hot Keywords (6 keywords)**
+Currently trending in 2024-2025:
+- AI-related variations
+- Platform-specific (TikTok, Reels, Shorts)
+- Industry buzzwords
+- Seasonal opportunities
+
+**PHASE 5: Competitor Gap Keywords (4 keywords)**
+Keywords top sellers rank for but have low competition:
+- Long-tail variations of popular searches
+- Underserved niches
+- Emerging sub-services
+
+===== FOR EACH KEYWORD, ANALYZE =====
+
+1. **searchVolume**: Estimate based on market size
+   - "very_high": 10,000+ monthly searches
+   - "high": 1,000-10,000
+   - "medium": 100-1,000  
+   - "low": Under 100
+
+2. **difficulty**: How hard to rank (1-100)
+   - 1-30: Easy, few competitors
+   - 31-60: Medium, moderate competition
+   - 61-100: Hard, dominated by top sellers
+
+3. **buyerIntent**: Will they buy immediately?
+   - "high": Ready to order now
+   - "medium": Comparing options
+   - "low": Just researching
+
+4. **trendingScore**: Current momentum (1-100)
+   - 80-100: 🔥 Hot right now
+   - 50-79: Growing
+   - 20-49: Stable
+   - 1-19: Declining
+
+5. **keywordType**: Classification
+   - "long_tail": 4+ words, very specific
+   - "short_tail": 1-2 words, broad
+   - "question": Starts with how/what/can
+   - "comparison": X vs Y, best X for Y
+   - "action": I need, create, fix, help
+
+6. **competitorUsage**: How many sellers use this?
+   - "rare": Untapped opportunity
+   - "common": Standard usage
+   - "saturated": Overused
+
+7. **seasonality**: Time-based demand
+   - "evergreen": Year-round demand
+   - "seasonal": Peaks at certain times
+   - "trending_now": Currently hot
+
+===== OUTPUT FORMAT =====
+
+Return EXACTLY this JSON (no markdown, no code blocks):
 [
   {
-    "keyword": "specific buyer search phrase",
-    "source": "fiverr" | "reddit" | "google",
+    "keyword": "exact buyer search phrase",
+    "source": "fiverr" | "reddit" | "google" | "trending" | "competitor",
     "competition": "low" | "medium" | "high",
-    "trend": "up" | "down" | "stable",
-    "relevance": 70-100
+    "trend": "up" | "down" | "stable" | "hot",
+    "relevance": 70-100,
+    "searchVolume": "low" | "medium" | "high" | "very_high",
+    "difficulty": 1-100,
+    "buyerIntent": "high" | "medium" | "low",
+    "keywordType": "long_tail" | "short_tail" | "question" | "comparison" | "action",
+    "trendingScore": 1-100,
+    "competitorUsage": "rare" | "common" | "saturated",
+    "seasonality": "evergreen" | "seasonal" | "trending_now",
+    "suggestedBid": "$X.XX-$X.XX"
   }
 ]
 
-Generate 18-21 keywords (6-7 per source). Make them ACTIONABLE and SPECIFIC.`;
+Generate exactly 30 keywords total. Prioritize HIGH buyer intent and LOW difficulty keywords.
+Sort by: trendingScore (desc), then relevance (desc).`;
 
 const GIG_GENERATION_PROMPT = `You are the #1 Fiverr gig optimization expert. You write gigs that get clicks and orders.
 
@@ -137,6 +213,19 @@ Return ONLY valid JSON (no markdown blocks):
 
 export class OpenAIService {
     private client: OpenAI | null = null;
+    private apiKeySource: 'env' | 'user' | null = null;
+
+    constructor() {
+        // Auto-initialize from environment variable if available
+        const envApiKey = import.meta.env.VITE_OPENAI_API_KEY;
+        if (envApiKey) {
+            this.client = new OpenAI({
+                apiKey: envApiKey,
+                dangerouslyAllowBrowser: true
+            });
+            this.apiKeySource = 'env';
+        }
+    }
 
     initialize(apiKey: string) {
         if (!apiKey) {
@@ -146,10 +235,19 @@ export class OpenAIService {
             apiKey,
             dangerouslyAllowBrowser: true
         });
+        this.apiKeySource = 'user';
     }
 
     isInitialized(): boolean {
         return this.client !== null;
+    }
+
+    getApiKeySource(): 'env' | 'user' | null {
+        return this.apiKeySource;
+    }
+
+    hasEnvKey(): boolean {
+        return !!import.meta.env.VITE_OPENAI_API_KEY;
     }
 
     async searchKeywords(query: string): Promise<KeywordData[]> {
@@ -165,15 +263,15 @@ export class OpenAIService {
                 messages: [
                     {
                         role: 'system',
-                        content: 'You are a Fiverr SEO expert. Return only valid JSON arrays with specific, actionable keywords. No markdown formatting.'
+                        content: 'You are an elite Fiverr keyword research analyst with deep market intelligence. Perform thorough research across Fiverr, Reddit, Google, trending platforms, and competitor analysis. Return only valid JSON arrays with comprehensive keyword data including all metrics. No markdown formatting, no code blocks.'
                     },
                     {
                         role: 'user',
                         content: prompt
                     }
                 ],
-                temperature: 0.8,
-                max_tokens: 2500
+                temperature: 0.85,
+                max_tokens: 4000
             });
 
             const text = response.choices[0]?.message?.content || '';

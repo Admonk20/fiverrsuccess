@@ -2,11 +2,20 @@
 
 export interface KeywordData {
     keyword: string;
-    source: 'fiverr' | 'reddit' | 'google';
-    volume?: number;
-    competition?: string;
-    trend?: 'up' | 'down' | 'stable';
-    relevance: number;
+    source: 'fiverr' | 'reddit' | 'google' | 'trending' | 'competitor';
+    volume?: number; // Estimated search volume 1-100
+    competition?: 'low' | 'medium' | 'high';
+    trend?: 'up' | 'down' | 'stable' | 'hot';
+    relevance: number; // 1-100 score
+    // Deep research fields
+    searchVolume?: 'low' | 'medium' | 'high' | 'very_high';
+    difficulty?: number; // 1-100, lower is easier to rank
+    buyerIntent?: 'high' | 'medium' | 'low';
+    keywordType?: 'long_tail' | 'short_tail' | 'question' | 'comparison' | 'action';
+    trendingScore?: number; // 1-100, higher means more trending
+    competitorUsage?: 'rare' | 'common' | 'saturated';
+    seasonality?: 'evergreen' | 'seasonal' | 'trending_now';
+    suggestedBid?: string; // CPC estimate like "$0.50-$2.00"
 }
 
 export interface GigPricing {
