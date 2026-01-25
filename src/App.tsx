@@ -28,13 +28,15 @@ import {
   Menu,
   X,
   Target,
-  FolderOpen
+  FolderOpen,
+  Terminal
 } from 'lucide-react';
 import { useStore } from './store/useStore';
 import { isSupabaseConfigured } from './lib/supabase';
 import { AuthForm } from './components/AuthForm';
 import { SessionsList } from './components/SessionsList';
 import { SettingsModal } from './components/SettingsModal';
+import { ResearchTerminal } from './components/ResearchTerminal';
 import { openaiService } from './services/openaiService';
 import type { KeywordData } from './types';
 import './App.css';
@@ -321,6 +323,9 @@ function App() {
                   </div>
                 )}
               </div>
+
+              {/* Research Terminal */}
+              <ResearchTerminal query={niche} isVisible={isSearching} />
 
               {/* Features */}
               <div className="features-row">
