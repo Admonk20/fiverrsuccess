@@ -466,27 +466,22 @@
 }
 
 .keywords-list::-webkit-scrollbar {
-  width: 4px;
-}
-
-.keywords-list::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.02);
+  width: 6px;
 }
 
 .keywords-list::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 4px;
 }
 
 .keywords-list::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .keyword-item {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--space-md);
+  flex-direction: column;
+  gap: var(--space-sm);
   padding: var(--space-md);
   background: rgba(255, 255, 255, 0.03);
   border: 1px solid var(--border-subtle);
@@ -496,23 +491,25 @@
 
 .keyword-item:hover {
   background: rgba(255, 255, 255, 0.06);
-  transform: translateX(4px);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .keyword-main {
   display: flex;
-  align-items: center;
-  gap: var(--space-sm);
-  flex: 1;
-  min-width: 0;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-md);
+  width: 100%;
 }
 
 .keyword-text {
   font-size: var(--font-size-sm);
+  font-weight: 500;
   color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.4;
+  word-break: break-word;
+  /* Prevents long words from overflowing */
 }
 
 .keyword-meta {
