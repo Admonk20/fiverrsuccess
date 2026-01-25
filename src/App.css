@@ -2127,3 +2127,50 @@
   color: var(--fiverr-green-light);
   text-decoration: underline;
 }
+
+/* ========================================
+   AUTH CONFIRMATION MESSAGE
+   ======================================== */
+
+.auth-confirmation {
+  text-align: center;
+  padding: var(--space-xl) var(--space-lg);
+}
+
+.auth-confirmation .confirmation-icon {
+  color: var(--fiverr-green);
+  margin-bottom: var(--space-lg);
+}
+
+.auth-confirmation h3 {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.auth-confirmation p {
+  color: var(--text-secondary);
+  margin-bottom: var(--space-sm);
+}
+
+.auth-confirmation .confirmation-email {
+  font-weight: 600;
+  color: var(--fiverr-green);
+  background: rgba(29, 191, 115, 0.1);
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  margin: var(--space-md) 0;
+  word-break: break-all;
+}
+
+.auth-confirmation .confirmation-note {
+  font-size: var(--font-size-sm);
+  color: var(--text-muted);
+  margin-top: var(--space-md);
+  margin-bottom: var(--space-lg);
+}
+
+.auth-confirmation .btn {
+  margin-top: var(--space-md);
+}

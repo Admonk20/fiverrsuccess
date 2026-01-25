@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Mail, Lock, User, ArrowRight, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Loader2, CheckCircle } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
 interface AuthFormProps {
@@ -12,6 +12,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
     const [password, setPassword] = useState('');
     const [fullName, setFullName] = useState('');
     const [localError, setLocalError] = useState('');
+    const [showConfirmation, setShowConfirmation] = useState(false);
 
     const { signIn, signUp, isLoading } = useStore();
 
@@ -22,14 +23,45 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
         try {
             if (mode === 'signup') {
                 await signUp(email, password, fullName);
+                // Show email confirmation message instead of closing
+                setShowConfirmation(true);
             } else {
                 await signIn(email, password);
+                // Sign in closes modal immediately
+                onSuccess?.();
             }
-            onSuccess?.();
         } catch (error) {
             setLocalError(error instanceof Error ? error.message : 'Authentication failed');
         }
     };
+
+    // Show email confirmation message after signup
+    if (showConfirmation) {
+        return (
+            <div className="auth-form">
+                <div className="auth-confirmation">
+                    <CheckCircle size={48} className="confirmation-icon" />
+                    <h3>Check your email!</h3>
+                    <p>We've sent a confirmation link to:</p>
+                    <p className="confirmation-email">{email}</p>
+                    <p className="confirmation-note">
+                        Click the link in the email to activate your account, then you can sign in.
+                    </p>
+                    <button
+                        type="button"
+                        className="btn btn-primary btn-lg auth-submit"
+                        onClick={() => {
+                            setShowConfirmation(false);
+                            setMode('signin');
+                        }}
+                    >
+                        <Mail size={18} />
+                        Back to Sign In
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="auth-form">
