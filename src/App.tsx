@@ -28,8 +28,7 @@ import {
   Menu,
   X,
   Target,
-  FolderOpen,
-  Terminal
+  FolderOpen
 } from 'lucide-react';
 import { useStore } from './store/useStore';
 import { isSupabaseConfigured } from './lib/supabase';
