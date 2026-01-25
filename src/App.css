@@ -344,21 +344,67 @@
   margin-top: var(--space-xs);
 }
 
+/* Keyword Grid - Responsive with Horizontal Scroll */
 .keywords-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex;
   gap: var(--space-lg);
+  overflow-x: auto;
+  padding-bottom: var(--space-md);
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
 }
 
-@media (max-width: 1024px) {
-  .keywords-grid {
-    grid-template-columns: 1fr;
-  }
+/* Hide scrollbar but keep functionality */
+.keywords-grid::-webkit-scrollbar {
+  height: 8px;
+}
+
+.keywords-grid::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.keywords-grid::-webkit-scrollbar-thumb {
+  background: var(--fiverr-green);
+  border-radius: 4px;
 }
 
 .keywords-column {
   background: rgba(255, 255, 255, 0.02);
   padding: var(--space-lg);
+  min-width: 280px;
+  max-width: 320px;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+}
+
+/* On larger screens, allow columns to grow */
+@media (min-width: 1400px) {
+  .keywords-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    overflow-x: visible;
+  }
+
+  .keywords-column {
+    min-width: auto;
+    max-width: none;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1399px) {
+  .keywords-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    overflow-x: visible;
+  }
+
+  .keywords-column {
+    min-width: auto;
+    max-width: none;
+  }
 }
 
 .keywords-column.source-fiverr {
@@ -380,6 +426,7 @@
   margin-bottom: var(--space-lg);
   padding-bottom: var(--space-md);
   border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
 }
 
 .column-header h3 {
@@ -407,10 +454,32 @@
   color: #a855f7;
 }
 
+/* Scrollable Keyword List */
 .keywords-list {
   display: flex;
   flex-direction: column;
   gap: var(--space-sm);
+  max-height: 500px;
+  overflow-y: auto;
+  flex: 1;
+  padding-right: var(--space-xs);
+}
+
+.keywords-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.keywords-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.keywords-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+.keywords-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
 }
 
 .keyword-item {
