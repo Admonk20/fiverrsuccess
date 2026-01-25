@@ -680,6 +680,9 @@ function App() {
           <p className="footer-note">
             Not affiliated with Fiverr International Ltd.
           </p>
+          <p className="footer-credit">
+            Made with ❤️ by <a href="https://braandex.com" target="_blank" rel="noopener noreferrer">Braandex</a>
+          </p>
         </div>
       </footer>
     </div>

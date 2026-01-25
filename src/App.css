@@ -2105,3 +2105,25 @@
   font-weight: 600;
   animation: pulse 2s infinite;
 }
+
+/* ========================================
+   FOOTER CREDIT
+   ======================================== */
+
+.footer-credit {
+  margin-top: var(--space-sm);
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
+
+.footer-credit a {
+  color: var(--fiverr-green);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.footer-credit a:hover {
+  color: var(--fiverr-green-light);
+  text-decoration: underline;
+}

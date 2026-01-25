@@ -376,6 +376,9 @@ export function HistoryPage() {
                     <p>
                         <Sparkles size={14} /> Fiverr Success — AI-Powered Gig Optimization
                     </p>
+                    <p className="footer-credit">
+                        Made with ❤️ by <a href="https://braandex.com" target="_blank" rel="noopener noreferrer">Braandex</a>
+                    </p>
                 </div>
             </footer>
         </div>
