@@ -27,7 +27,8 @@ import {
   User,
   Menu,
   X,
-  Target
+  Target,
+  FolderOpen
 } from 'lucide-react';
 import { useStore } from './store/useStore';
 import { isSupabaseConfigured } from './lib/supabase';
@@ -108,6 +109,11 @@ function App() {
   };
 
   const handleGenerateGig = async () => {
+    // Require auth for gig generation
+    if (!user) {
+      setShowAuthModal(true);
+      return;
+    }
     await generateGig();
   };
 
@@ -212,6 +218,9 @@ function App() {
                   <User size={16} />
                   <span>{profile?.full_name || user.email}</span>
                 </div>
+                <a href="/history" className="btn btn-ghost" title="History">
+                  <FolderOpen size={18} />
+                </a>
                 <button className="btn btn-ghost" onClick={() => setShowSettings(true)} title="Settings">
                   <Settings size={18} />
                 </button>
@@ -221,10 +230,6 @@ function App() {
               </div>
             ) : (
               <div className="guest-menu">
-                <button className="btn btn-ghost" onClick={() => setShowSettings(true)}>
-                  <Settings size={18} />
-                  <span>Settings</span>
-                </button>
                 {supabaseConfigured && (
                   <button className="btn btn-secondary" onClick={() => setShowAuthModal(true)}>
                     <User size={18} />
@@ -359,7 +364,7 @@ function App() {
                   </p>
                 </div>
                 <button
-                  className="btn btn-primary btn-lg"
+                  className={`btn ${user ? 'btn-primary' : 'btn-secondary'} btn-lg`}
                   onClick={handleGenerateGig}
                   disabled={isGenerating}
                 >
@@ -368,10 +373,16 @@ function App() {
                       <Loader2 className="animate-spin" size={20} />
                       Generating Gig...
                     </>
-                  ) : (
+                  ) : user ? (
                     <>
                       <Zap size={20} />
                       Generate Complete Gig
+                      <ArrowRight size={20} />
+                    </>
+                  ) : (
+                    <>
+                      <User size={20} />
+                      Sign In to Generate Gig
                       <ArrowRight size={20} />
                     </>
                   )}
