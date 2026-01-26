@@ -28,7 +28,8 @@ import {
   Menu,
   X,
   Target,
-  FolderOpen
+  FolderOpen,
+  Download
 } from 'lucide-react';
 import { useStore } from './store/useStore';
 import { isSupabaseConfigured } from './lib/supabase';
@@ -57,6 +58,8 @@ function App() {
     setError,
     searchKeywords,
     generateGig,
+    generateGigImage,
+    isGeneratingImage,
     openaiApiKey,
     initializeOpenAI
   } = useStore();
@@ -288,13 +291,19 @@ function App() {
               <div className="search-container">
                 <div className="search-box">
                   <Search className="search-icon" />
-                  <input
-                    type="text"
+                  <textarea
                     className="search-input"
-                    placeholder="Enter your niche or service (e.g., logo design, video editing, SEO)..."
+                    placeholder="Enter your niche, service, or paste a list of keywords..."
                     value={niche}
                     onChange={e => setNiche(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleSearch()}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSearch();
+                      }
+                    }}
+                    rows={1}
+                    style={{ height: 'auto', minHeight: '48px', paddingTop: '12px', resize: 'none' }}
                   />
                   <button
                     className="btn btn-primary search-btn"
@@ -663,10 +672,39 @@ function App() {
                         Copy Prompt
                       </button>
                     </div>
-                    <div className="image-placeholder">
-                      <Image size={48} />
-                      <p>Use the prompt above with an AI image generator like DALL-E, Midjourney, or Canva AI</p>
-                    </div>
+
+                    {generatedGig.imageUrl ? (
+                      <div className="generated-image-preview">
+                        <img src={generatedGig.imageUrl} alt="Generated Gig Thumbnail" />
+                        <a
+                          href={generatedGig.imageUrl}
+                          download="gig-thumbnail.png"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn btn-secondary btn-sm mt-2"
+                        >
+                          <Download size={16} /> Download Image
+                        </a>
+                      </div>
+                    ) : (
+                      <button
+                        className="btn btn-primary w-full mt-4"
+                        onClick={generateGigImage}
+                        disabled={isGeneratingImage}
+                      >
+                        {isGeneratingImage ? (
+                          <>
+                            <Loader2 className="animate-spin" size={18} />
+                            Generating Thumbnail...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles size={18} />
+                            Generate AI Thumbnail
+                          </>
+                        )}
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

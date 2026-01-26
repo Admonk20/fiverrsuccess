@@ -99,9 +99,12 @@ Return EXACTLY this JSON (no markdown, no code blocks):
     "trendingScore": 1-100,
     "competitorUsage": "rare" | "common" | "saturated",
     "seasonality": "evergreen" | "seasonal" | "trending_now",
-    "suggestedBid": "$X.XX-$X.XX"
+    "suggestedBid": "$X.XX-$X.XX",
+    "ordersInQueue": number, // Estimate 0-50 based on demand
+    "recentSales": number // Estimate days ago (0-30)
   }
 ]
+
 
 Generate exactly 30 keywords total. Prioritize HIGH buyer intent and LOW difficulty keywords.
 Sort by: trendingScore (desc), then relevance (desc).`;
@@ -359,6 +362,27 @@ export class OpenAIService {
                 throw new Error('Invalid API key. Please check your OpenAI API key.');
             }
             throw new Error('Failed to generate gig. Please try again.');
+        }
+    }
+
+    async generateImage(prompt: string): Promise<string> {
+        if (!this.client) {
+            throw new Error('OpenAI API not initialized');
+        }
+
+        try {
+            const response = await this.client.images.generate({
+                model: "dall-e-3",
+                prompt: `Professional Fiverr Gig Thumbnail: ${prompt}. High quality, 4k, clean composition, vibrant colors, text-free or minimal text.`,
+                n: 1,
+                size: "1024x1024",
+                quality: "standard",
+            });
+
+            return response.data?.[0]?.url || '';
+        } catch (error) {
+            console.error('Image generation error:', error);
+            throw new Error('Failed to generate images. Please try again.');
         }
     }
 }

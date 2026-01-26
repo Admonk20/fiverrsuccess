@@ -33,6 +33,7 @@ interface GigState {
     currentSessionId: string | null;
     isSearching: boolean;
     isGenerating: boolean;
+    isGeneratingImage: boolean;
     error: string | null;
 
     // Gig actions
@@ -44,6 +45,7 @@ interface GigState {
     setError: (error: string | null) => void;
     searchKeywords: (niche: string) => Promise<void>;
     generateGig: () => Promise<void>;
+    generateGigImage: () => Promise<void>;
     saveSession: () => Promise<void>;
     loadSession: (sessionId: string) => Promise<void>;
     deleteSession: (sessionId: string) => Promise<void>;
@@ -80,6 +82,7 @@ export const useStore = create<AppState>()(
             currentSessionId: null,
             isSearching: false,
             isGenerating: false,
+            isGeneratingImage: false,
             error: null,
 
             // Settings state
@@ -278,6 +281,39 @@ export const useStore = create<AppState>()(
                     set({ error: error instanceof Error ? error.message : 'Generation failed' });
                 } finally {
                     set({ isGenerating: false });
+                }
+            },
+
+            generateGigImage: async () => {
+                const { generatedGig } = get();
+                if (!generatedGig || !generatedGig.imagePrompt) {
+                    set({ error: 'No gig generated to create image for' });
+                    return;
+                }
+
+                set({ isGeneratingImage: true, error: null });
+
+                try {
+                    const imageUrl = await openaiService.generateImage(generatedGig.imagePrompt);
+
+                    // Update gig with new image 
+                    // (Note: generatedGig type doesn't have imageUrl field yet in types/index.ts, need to add it or use a separate field? 
+                    // Actually, generatedGig is huge. I should probably add imageUrl to it or store separately.
+                    // For now, let's assume we can extend generatedGig or store it in metadata? 
+                    // Wait, I should add imageUrl to GeneratedGig type first.
+                    // For now I'll just store it in the store and update generatedGig safely)
+
+                    const updatedGig = { ...generatedGig, imageUrl };
+                    set({ generatedGig: updatedGig });
+
+                    // Auto-save
+                    if (get().user) {
+                        await get().saveSession();
+                    }
+                } catch (error) {
+                    set({ error: error instanceof Error ? error.message : 'Image generation failed' });
+                } finally {
+                    set({ isGeneratingImage: false });
                 }
             },
 

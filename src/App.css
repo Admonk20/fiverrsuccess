@@ -2301,3 +2301,23 @@
     transform: translateY(0);
   }
 }
+
+/* Generated Image Preview */
+.generated-image-preview {
+  margin-top: var(--space-md);
+  text-align: center;
+}
+
+.generated-image-preview img {
+  width: 100%;
+  max-width: 512px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  margin-bottom: var(--space-md);
+}
+
+.search-input {
+  resize: none;
+  overflow: hidden;
+  line-height: 1.5;
+}

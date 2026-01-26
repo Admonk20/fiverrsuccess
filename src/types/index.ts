@@ -16,6 +16,8 @@ export interface KeywordData {
     competitorUsage?: 'rare' | 'common' | 'saturated';
     seasonality?: 'evergreen' | 'seasonal' | 'trending_now';
     suggestedBid?: string; // CPC estimate like "$0.50-$2.00"
+    ordersInQueue?: number; // Simulated active orders for ranking
+    recentSales?: number; // Simulated days since last sale
 }
 
 export interface GigPricing {
@@ -70,6 +72,7 @@ export interface GeneratedGig {
     faqs: GigFAQ[];
     requirements: GigRequirement[];
     imagePrompt: string; // For generating the gig image
+    imageUrl?: string; // The generated DALL-E image URL
     keywords: KeywordData[];
 }
 
