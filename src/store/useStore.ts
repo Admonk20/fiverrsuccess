@@ -245,6 +245,11 @@ export const useStore = create<AppState>()(
                 try {
                     const keywords = await openaiService.searchKeywords(niche);
                     set({ keywords, niche });
+
+                    // Auto-save session if logged in
+                    if (get().user) {
+                        await get().saveSession();
+                    }
                 } catch (error) {
                     set({ error: error instanceof Error ? error.message : 'Search failed' });
                 } finally {
