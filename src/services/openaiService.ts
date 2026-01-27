@@ -43,44 +43,16 @@ Keywords top sellers rank for but have low competition:
 
 ===== FOR EACH KEYWORD, ANALYZE =====
 
-1. **searchVolume**: Estimate based on market size
-   - "very_high": 10,000+ monthly searches
-   - "high": 1,000-10,000
-   - "medium": 100-1,000  
-   - "low": Under 100
-
+1. **searchVolume**: Estimate based on market size (low, medium, high, very_high)
 2. **difficulty**: How hard to rank (1-100)
-   - 1-30: Easy, few competitors
-   - 31-60: Medium, moderate competition
-   - 61-100: Hard, dominated by top sellers
-
-3. **buyerIntent**: Will they buy immediately?
-   - "high": Ready to order now
-   - "medium": Comparing options
-   - "low": Just researching
-
+3. **buyerIntent**: Will they buy immediately? (high, medium, low)
 4. **trendingScore**: Current momentum (1-100)
-   - 80-100: 🔥 Hot right now
-   - 50-79: Growing
-   - 20-49: Stable
-   - 1-19: Declining
-
-5. **keywordType**: Classification
-   - "long_tail": 4+ words, very specific
-   - "short_tail": 1-2 words, broad
-   - "question": Starts with how/what/can
-   - "comparison": X vs Y, best X for Y
-   - "action": I need, create, fix, help
-
-6. **competitorUsage**: How many sellers use this?
-   - "rare": Untapped opportunity
-   - "common": Standard usage
-   - "saturated": Overused
-
-7. **seasonality**: Time-based demand
-   - "evergreen": Year-round demand
-   - "seasonal": Peaks at certain times
-   - "trending_now": Currently hot
+5. **keywordType**: Classification (long_tail, short_tail, question, comparison, action)
+6. **competitorUsage**: How many sellers use this? (rare, common, saturated)
+7. **seasonality**: Time-based demand (evergreen, seasonal, trending_now)
+8. **suggestedBid**: CPC estimate like "$0.50-$2.00"
+9. **ordersInQueue**: Estimate active orders (0-50) based on typical demand.
+10. **recentSales**: Estimate days since last sale (0-30).
 
 ===== OUTPUT FORMAT =====
 
@@ -88,23 +60,22 @@ Return EXACTLY this JSON (no markdown, no code blocks):
 [
   {
     "keyword": "exact buyer search phrase",
-    "source": "fiverr" | "reddit" | "google" | "trending" | "competitor",
-    "competition": "low" | "medium" | "high",
-    "trend": "up" | "down" | "stable" | "hot",
-    "relevance": 70-100,
-    "searchVolume": "low" | "medium" | "high" | "very_high",
-    "difficulty": 1-100,
-    "buyerIntent": "high" | "medium" | "low",
-    "keywordType": "long_tail" | "short_tail" | "question" | "comparison" | "action",
-    "trendingScore": 1-100,
-    "competitorUsage": "rare" | "common" | "saturated",
-    "seasonality": "evergreen" | "seasonal" | "trending_now",
-    "suggestedBid": "$X.XX-$X.XX",
-    "ordersInQueue": number, // Estimate 0-50 based on demand
-    "recentSales": number // Estimate days ago (0-30)
+    "source": "fiverr",
+    "competition": "low",
+    "trend": "up",
+    "relevance": 95,
+    "searchVolume": "high",
+    "difficulty": 45,
+    "buyerIntent": "high",
+    "keywordType": "long_tail",
+    "trendingScore": 85,
+    "competitorUsage": "common",
+    "seasonality": "evergreen",
+    "suggestedBid": "$1.50-$3.00",
+    "ordersInQueue": 12,
+    "recentSales": 2
   }
 ]
-
 
 Generate exactly 30 keywords total. Prioritize HIGH buyer intent and LOW difficulty keywords.
 Sort by: trendingScore (desc), then relevance (desc).`;
@@ -293,7 +264,7 @@ export class OpenAIService {
             if (error instanceof Error && error.message.includes('401')) {
                 throw new Error('Invalid API key. Please check your OpenAI API key.');
             }
-            throw new Error('Failed to search keywords. Please try again.');
+            throw error; // Re-throw actual error for UI
         }
     }
 
