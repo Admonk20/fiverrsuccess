@@ -1,0 +1,17 @@
+/* Fiverr Success Extension - Content Styles */
+
+#fiverr-success-indicator {
+    transition: opacity 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

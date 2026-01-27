@@ -356,7 +356,249 @@ export class OpenAIService {
             throw new Error('Failed to generate images. Please try again.');
         }
     }
+
+    async analyzeCompetitor(gigUrl: string): Promise<import('../types').CompetitorAnalysis> {
+        if (!this.client) {
+            throw new Error('OpenAI API not initialized');
+        }
+
+        const prompt = `Analyze this Fiverr gig URL and provide competitive intelligence:
+URL: ${gigUrl}
+
+Based on the URL structure and common Fiverr patterns, provide a detailed analysis.
+
+Return ONLY valid JSON (no markdown):
+{
+    "url": "${gigUrl}",
+    "title": "Estimated gig title based on URL",
+    "sellerLevel": "New Seller|Level 1|Level 2|Top Rated",
+    "rating": 4.8,
+    "reviewCount": 150,
+    "startingPrice": 25,
+    "keywordsUsed": ["keyword1", "keyword2", "keyword3"],
+    "titlePatterns": ["Pattern used in title", "Another pattern"],
+    "descriptionStrengths": ["Strength 1", "Strength 2"],
+    "descriptionWeaknesses": ["Weakness 1", "Weakness 2"],
+    "pricingStrategy": "Description of their pricing approach",
+    "uniqueSellingPoints": ["USP 1", "USP 2"],
+    "improvementSuggestions": ["How to compete", "What to do better"],
+    "estimatedMonthlyOrders": 50,
+    "competitiveAdvantages": ["What makes them rank well"]
+}`;
+
+        try {
+            const response = await this.client.chat.completions.create({
+                model: 'gpt-4o',
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are an expert Fiverr competitor analyst. Analyze gig URLs and provide actionable competitive intelligence. Return only valid JSON.'
+                    },
+                    { role: 'user', content: prompt }
+                ],
+                temperature: 0.7,
+                max_tokens: 2000
+            });
+
+            const text = response.choices[0]?.message?.content || '';
+            const jsonMatch = text.match(/\{[\s\S]*\}/);
+            if (!jsonMatch) throw new Error('Invalid response format');
+
+            return JSON.parse(jsonMatch[0]);
+        } catch (error) {
+            console.error('Competitor analysis error:', error);
+            throw new Error('Failed to analyze competitor. Please try again.');
+        }
+    }
+
+    async clusterKeywords(keywords: KeywordData[]): Promise<import('../types').KeywordCluster[]> {
+        if (!this.client) {
+            throw new Error('OpenAI API not initialized');
+        }
+
+        const keywordList = keywords.map(k => k.keyword).join(', ');
+
+        const prompt = `Cluster these keywords by buyer intent funnel stage:
+
+Keywords: ${keywordList}
+
+Group into 3 stages:
+1. AWARENESS - Buyer is researching, learning, exploring options
+2. CONSIDERATION - Buyer is comparing options, looking for solutions
+3. DECISION - Buyer is ready to purchase, looking for specific services
+
+Return ONLY valid JSON array:
+[
+    {
+        "stage": "awareness",
+        "stageLabel": "🔍 Awareness",
+        "keywords": [{"keyword": "...", "source": "fiverr", "relevance": 80}],
+        "description": "These buyers are just starting their search",
+        "targetingTips": ["Tip 1", "Tip 2"]
+    },
+    {
+        "stage": "consideration",
+        "stageLabel": "🤔 Consideration", 
+        "keywords": [...],
+        "description": "These buyers are comparing options",
+        "targetingTips": ["Tip 1", "Tip 2"]
+    },
+    {
+        "stage": "decision",
+        "stageLabel": "✅ Decision",
+        "keywords": [...],
+        "description": "These buyers are ready to purchase",
+        "targetingTips": ["Tip 1", "Tip 2"]
+    }
+]`;
+
+        try {
+            const response = await this.client.chat.completions.create({
+                model: 'gpt-4o',
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are a keyword clustering expert. Group keywords by buyer intent funnel stages. Return only valid JSON array.'
+                    },
+                    { role: 'user', content: prompt }
+                ],
+                temperature: 0.6,
+                max_tokens: 2500
+            });
+
+            const text = response.choices[0]?.message?.content || '';
+            const jsonMatch = text.match(/\[[\s\S]*\]/);
+            if (!jsonMatch) throw new Error('Invalid response format');
+
+            return JSON.parse(jsonMatch[0]);
+        } catch (error) {
+            console.error('Keyword clustering error:', error);
+            throw new Error('Failed to cluster keywords. Please try again.');
+        }
+    }
+
+    async generateTitleVariations(gig: GeneratedGig): Promise<import('../types').TitleVariation[]> {
+        if (!this.client) {
+            throw new Error('OpenAI API not initialized');
+        }
+
+        const prompt = `Generate 5 title variations for this Fiverr gig:
+
+Current Title: ${gig.title}
+Niche: ${gig.metadata?.category || 'General'}
+Top Keywords: ${gig.searchTags?.join(', ') || 'N/A'}
+
+Create 5 different title strategies:
+1. EMOTIONAL - Triggers feelings (fear of missing out, excitement)
+2. BENEFIT - Focuses on the outcome/result
+3. KEYWORD - Maximizes SEO with primary keywords
+4. URGENCY - Creates time pressure
+5. SOCIAL_PROOF - Implies popularity/trust
+
+Each title MUST:
+- Start with "I will"
+- Be max 80 characters
+- Sound natural, not spammy
+
+Return ONLY valid JSON array:
+[
+    {
+        "title": "I will...",
+        "strategy": "emotional",
+        "strategyLabel": "🎯 Emotional Hook",
+        "explanation": "Why this works",
+        "predictedCTR": "high"
+    }
+]`;
+
+        try {
+            const response = await this.client.chat.completions.create({
+                model: 'gpt-4o',
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are a Fiverr title optimization expert. Create compelling title variations using different psychological strategies. Return only valid JSON array.'
+                    },
+                    { role: 'user', content: prompt }
+                ],
+                temperature: 0.8,
+                max_tokens: 1500
+            });
+
+            const text = response.choices[0]?.message?.content || '';
+            const jsonMatch = text.match(/\[[\s\S]*\]/);
+            if (!jsonMatch) throw new Error('Invalid response format');
+
+            return JSON.parse(jsonMatch[0]);
+        } catch (error) {
+            console.error('Title generation error:', error);
+            throw new Error('Failed to generate title variations. Please try again.');
+        }
+    }
+
+    async scoreGigDescription(description: string): Promise<import('../types').GigScore> {
+        if (!this.client) {
+            throw new Error('OpenAI API not initialized');
+        }
+
+        const prompt = `Score this Fiverr gig description on SEO, readability, and conversion potential:
+
+DESCRIPTION:
+${description}
+
+Analyze and score (1-100):
+1. SEO Score - Keyword usage, structure, length
+2. Readability Score - Grade level, sentence length, clarity
+3. Conversion Score - Hook, benefits, CTA, trust signals
+
+Calculate overall score = (SEO * 0.3) + (Readability * 0.3) + (Conversion * 0.4)
+
+Grade:
+- 90-100: A
+- 80-89: B
+- 70-79: C
+- 60-69: D
+- Below 60: F
+
+Return ONLY valid JSON:
+{
+    "overallScore": 85,
+    "seoScore": 80,
+    "readabilityScore": 90,
+    "conversionScore": 85,
+    "seoIssues": ["Issue 1", "Issue 2"],
+    "readabilityIssues": ["Issue 1"],
+    "conversionIssues": ["Issue 1"],
+    "improvements": ["Specific actionable improvement 1", "Improvement 2", "Improvement 3"],
+    "grade": "B"
+}`;
+
+        try {
+            const response = await this.client.chat.completions.create({
+                model: 'gpt-4o',
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are a Fiverr gig quality expert. Analyze descriptions and provide actionable scores and improvements. Be specific and helpful. Return only valid JSON.'
+                    },
+                    { role: 'user', content: prompt }
+                ],
+                temperature: 0.5,
+                max_tokens: 1500
+            });
+
+            const text = response.choices[0]?.message?.content || '';
+            const jsonMatch = text.match(/\{[\s\S]*\}/);
+            if (!jsonMatch) throw new Error('Invalid response format');
+
+            return JSON.parse(jsonMatch[0]);
+        } catch (error) {
+            console.error('Gig scoring error:', error);
+            throw new Error('Failed to score gig. Please try again.');
+        }
+    }
 }
 
 // Singleton instance
 export const openaiService = new OpenAIService();
+

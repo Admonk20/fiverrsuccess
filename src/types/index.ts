@@ -86,3 +86,72 @@ export interface SearchResult {
 export interface APISettings {
     geminiApiKey: string;
 }
+
+// Phase 8: Feature Enhancement Types
+
+export interface CompetitorAnalysis {
+    url: string;
+    title: string;
+    sellerLevel: string;
+    rating: number;
+    reviewCount: number;
+    startingPrice: number;
+    keywordsUsed: string[];
+    titlePatterns: string[];
+    descriptionStrengths: string[];
+    descriptionWeaknesses: string[];
+    pricingStrategy: string;
+    uniqueSellingPoints: string[];
+    improvementSuggestions: string[];
+    estimatedMonthlyOrders: number;
+    competitiveAdvantages: string[];
+}
+
+export interface KeywordCluster {
+    stage: 'awareness' | 'consideration' | 'decision';
+    stageLabel: string;
+    keywords: KeywordData[];
+    description: string;
+    targetingTips: string[];
+}
+
+export interface TitleVariation {
+    title: string;
+    strategy: 'emotional' | 'benefit' | 'keyword' | 'urgency' | 'social_proof';
+    strategyLabel: string;
+    explanation: string;
+    predictedCTR: 'low' | 'medium' | 'high';
+}
+
+export interface GigScore {
+    overallScore: number; // 1-100
+    seoScore: number;
+    readabilityScore: number;
+    conversionScore: number;
+    seoIssues: string[];
+    readabilityIssues: string[];
+    conversionIssues: string[];
+    improvements: string[];
+    grade: 'A' | 'B' | 'C' | 'D' | 'F';
+}
+
+// Phase 10: Technical Types
+
+export interface TokenUsage {
+    promptTokens: number;
+    completionTokens: number;
+    totalTokens: number;
+    estimatedCost: number;
+    timestamp: Date;
+    feature: string;
+}
+
+export interface CachedSession {
+    id: string;
+    niche: string;
+    keywords: KeywordData[];
+    generatedGig: GeneratedGig | null;
+    cachedAt: Date;
+    expiresAt: Date;
+}
+
