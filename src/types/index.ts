@@ -155,3 +155,92 @@ export interface CachedSession {
     expiresAt: Date;
 }
 
+// Phase 13: Advanced Keyword Intelligence Types
+
+export interface UserSpecialty {
+    id: string;
+    userId: string;
+    primaryService: string; // e.g., "Logo Design", "Video Editing"
+    subNiches: string[]; // e.g., ["Minimalist Logos", "3D Logos", "Mascot Design"]
+    targetClients: string[]; // e.g., ["Startups", "E-commerce", "Restaurants"]
+    experienceLevel: 'beginner' | 'intermediate' | 'expert';
+    priceRange: { min: number; max: number };
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+export interface TrackedKeyword {
+    id: string;
+    userId: string;
+    keyword: string;
+    specialty: string;
+    lastRank?: number;
+    currentRank?: number;
+    orderConfidence: number; // 0-100
+    avgOrdersInQueue: number;
+    avgPrice: number;
+    competitorCount: number;
+    trend: 'rising' | 'falling' | 'stable' | 'new';
+    lastChecked: Date;
+    history: {
+        date: Date;
+        rank: number;
+        ordersInQueue: number;
+    }[];
+}
+
+export interface KeywordAlert {
+    id: string;
+    userId: string;
+    type: 'new_keyword' | 'trend_change' | 'competition_drop' | 'new_service' | 'opportunity';
+    title: string;
+    description: string;
+    keyword?: string;
+    actionUrl?: string;
+    priority: 'low' | 'medium' | 'high' | 'urgent';
+    isRead: boolean;
+    createdAt: Date;
+}
+
+export interface KeywordConfidence {
+    keyword: string;
+    overallScore: number; // 0-100
+    factors: {
+        demandScore: number; // Based on orders in queue
+        competitionScore: number; // Lower competition = higher score
+        priceViability: number; // Market willing to pay?
+        newSellerSuccess: number; // Can beginners rank?
+        trendMomentum: number; // Is it growing?
+    };
+    recommendation: 'highly_recommended' | 'recommended' | 'consider' | 'avoid';
+    reasoning: string;
+    estimatedOrdersPerMonth: number;
+    estimatedTimeToFirstOrder: string;
+}
+
+export interface FiverrSearchResult {
+    position: number;
+    title: string;
+    seller: string;
+    sellerLevel: string;
+    rating: number;
+    reviewCount: number;
+    startingPrice: number;
+    ordersInQueue: number;
+    deliveryTime: string;
+    url: string;
+    scrapedAt: Date;
+}
+
+export interface TrendData {
+    keyword: string;
+    specialty: string;
+    dataPoints: {
+        date: Date;
+        searchVolume: number;
+        avgPosition: number;
+        avgPrice: number;
+    }[];
+    prediction: 'growing' | 'declining' | 'stable' | 'volatile';
+    confidence: number;
+}
