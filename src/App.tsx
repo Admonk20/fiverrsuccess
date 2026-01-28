@@ -38,6 +38,7 @@ import { SessionsList } from './components/SessionsList';
 import { SettingsModal } from './components/SettingsModal';
 import { ResearchTerminal } from './components/ResearchTerminal';
 import { openaiService } from './services/openaiService';
+import { ToolsPanel } from './components/ToolsPanel';
 import type { KeywordData } from './types';
 import './App.css';
 
@@ -709,6 +710,21 @@ function App() {
                 </div>
               </div>
             </div>
+          </section>
+        )}
+
+        {/* AI Tools Panel - Shows after keywords or gig */}
+        {(keywords.length > 0 || generatedGig) && (
+          <section className="tools-section container">
+            <ToolsPanel
+              userId={user?.id}
+              keywords={keywords}
+              generatedGig={generatedGig}
+              onSearch={(keyword) => {
+                setNiche(keyword);
+                searchKeywords(keyword);
+              }}
+            />
           </section>
         )}
       </main>

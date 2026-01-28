@@ -2930,3 +2930,219 @@ h6 {
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: var(--space-lg);
 }
+
+/* ========================================
+   TOOLS PANEL
+   ======================================== */
+
+.tools-panel {
+  background: var(--glass-gradient);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  margin-top: var(--space-2xl);
+  overflow: hidden;
+}
+
+.tools-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-lg);
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.tools-header:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.tools-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.tools-title h3 {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.tools-count {
+  padding: 2px 8px;
+  background: rgba(29, 191, 115, 0.1);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  color: var(--fiverr-green);
+}
+
+.expand-icon {
+  transition: transform var(--transition-fast);
+}
+
+.expand-icon.expanded {
+  transform: rotate(90deg);
+}
+
+.tools-content {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: 500px;
+}
+
+@media (max-width: 768px) {
+  .tools-content {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tools-sidebar {
+  background: rgba(0, 0, 0, 0.2);
+  border-right: 1px solid var(--border-subtle);
+  padding: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  overflow-y: auto;
+  max-height: 600px;
+}
+
+@media (max-width: 768px) {
+  .tools-sidebar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-right: none;
+    border-bottom: 1px solid var(--border-subtle);
+    max-height: none;
+  }
+}
+
+.tool-category {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.category-label {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  padding: var(--space-xs) var(--space-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tool-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: left;
+  width: 100%;
+}
+
+.tool-btn:hover:not(.disabled) {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+}
+
+.tool-btn.active {
+  background: rgba(29, 191, 115, 0.1);
+  color: var(--fiverr-green);
+}
+
+.tool-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tools-main {
+  padding: var(--space-lg);
+  overflow-y: auto;
+  max-height: 600px;
+}
+
+.tool-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.tool-header h4 {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+}
+
+.tool-content {
+  min-height: 300px;
+}
+
+.tool-unavailable {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-2xl);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.tool-unavailable p {
+  font-size: var(--font-size-sm);
+}
+
+/* Monitor Status Widget */
+.monitor-status {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  margin-top: var(--space-lg);
+}
+
+.monitor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-sm);
+}
+
+.monitor-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ef4444;
+}
+
+.monitor-indicator.active {
+  background: #10b981;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.monitor-stats {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+}
