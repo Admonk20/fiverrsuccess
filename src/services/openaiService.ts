@@ -597,6 +597,93 @@ Return ONLY valid JSON:
             throw new Error('Failed to score gig. Please try again.');
         }
     }
+
+    async translateGig(gig: import('../types').GeneratedGig, languageCodes: string[]): Promise<any[]> {
+        if (!this.client) {
+            throw new Error('OpenAI API not initialized');
+        }
+
+        const LANGUAGES: Record<string, { name: string; flag: string; fiverr: boolean }> = {
+            'es': { name: 'Spanish', flag: '🇪🇸', fiverr: true },
+            'de': { name: 'German', flag: '🇩🇪', fiverr: true },
+            'fr': { name: 'French', flag: '🇫🇷', fiverr: true },
+            'pt': { name: 'Portuguese', flag: '🇧🇷', fiverr: true },
+            'it': { name: 'Italian', flag: '🇮🇹', fiverr: true },
+            'nl': { name: 'Dutch', flag: '🇳🇱', fiverr: true },
+        };
+
+        const translations: any[] = [];
+
+        for (const langCode of languageCodes) {
+            const lang = LANGUAGES[langCode];
+            if (!lang) continue;
+
+            const prompt = `Translate this Fiverr gig content to ${lang.name}. 
+
+ORIGINAL GIG:
+Title: ${gig.title}
+Description: ${gig.description}
+Tags: ${gig.searchTags?.join(', ') || 'N/A'}
+FAQs:
+${gig.faqs?.map((f: any) => `Q: ${f.question}\nA: ${f.answer}`).join('\n') || 'N/A'}
+
+TRANSLATION REQUIREMENTS:
+1. Translate naturally for ${lang.name}-speaking Fiverr buyers
+2. Keep SEO keywords relevant to the ${lang.name} market
+3. Maintain the same persuasive tone
+4. Adapt cultural references if needed
+5. Search tags MUST be popular ${lang.name} search terms on Fiverr
+
+Return ONLY valid JSON:
+{
+    "title": "Translated title (max 80 chars, starts with equivalent of 'I will')",
+    "description": "Full translated description",
+    "tags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
+    "faqs": [
+        {"question": "Translated Q1", "answer": "Translated A1"},
+        {"question": "Translated Q2", "answer": "Translated A2"},
+        {"question": "Translated Q3", "answer": "Translated A3"}
+    ]
+}`;
+
+            try {
+                const response = await this.client.chat.completions.create({
+                    model: 'gpt-4o',
+                    messages: [
+                        {
+                            role: 'system',
+                            content: `You are a professional Fiverr gig translator and SEO expert for the ${lang.name} market. Translate content to be natural, persuasive, and optimized for ${lang.name}-speaking buyers. Return only valid JSON.`
+                        },
+                        { role: 'user', content: prompt }
+                    ],
+                    temperature: 0.7,
+                    max_tokens: 2000
+                });
+
+                const text = response.choices[0]?.message?.content || '';
+                const jsonMatch = text.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    const parsed = JSON.parse(jsonMatch[0]);
+                    translations.push({
+                        language: { code: langCode, ...lang },
+                        title: parsed.title,
+                        description: parsed.description,
+                        tags: parsed.tags || [],
+                        faqs: parsed.faqs || []
+                    });
+                }
+            } catch (error) {
+                console.error(`Translation to ${lang.name} failed:`, error);
+                // Continue with other languages
+            }
+        }
+
+        if (translations.length === 0) {
+            throw new Error('Translation failed for all languages');
+        }
+
+        return translations;
+    }
 }
 
 // Singleton instance
