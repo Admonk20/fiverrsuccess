@@ -237,51 +237,68 @@ export class OpenAIService {
                 messages: [
                     {
                         role: 'system',
-                        content: 'You are an elite Fiverr keyword research analyst with deep market intelligence. Perform thorough research across Fiverr, Reddit, Google, trending platforms, and competitor analysis. Return only valid JSON arrays with comprehensive keyword data including all metrics. No markdown formatting, no code blocks.'
+                        content: 'You are an elite Fiverr keyword research analyst. Return ONLY a valid JSON array of keyword objects. No explanations, no markdown, just the JSON array starting with [ and ending with ].'
                     },
                     {
                         role: 'user',
                         content: prompt
                     }
                 ],
-                temperature: 0.85,
+                response_format: { type: 'json_object' },
+                temperature: 0.7,
                 max_tokens: 4000
             });
 
             const text = response.choices[0]?.message?.content || '';
 
-            // Extract JSON from the response - handle multiple formats
-            let jsonContent = text;
-
-            // Remove markdown code blocks if present
-            if (jsonContent.includes('```')) {
-                const codeBlockMatch = jsonContent.match(/```(?:json)?\s*([\s\S]*?)```/);
-                if (codeBlockMatch) {
-                    jsonContent = codeBlockMatch[1].trim();
-                }
+            // Parse the JSON response
+            let parsed: unknown;
+            try {
+                parsed = JSON.parse(text);
+            } catch {
+                console.error('Failed to parse JSON response:', text.substring(0, 500));
+                throw new Error('AI returned invalid JSON. Please try again.');
             }
 
-            // Try to find JSON array
-            const jsonMatch = jsonContent.match(/\[[\s\S]*\]/);
-            if (!jsonMatch) {
-                console.error('Raw response:', text);
+            // Handle different response structures
+            let keywords: KeywordData[];
+
+            if (Array.isArray(parsed)) {
+                keywords = parsed;
+            } else if (parsed && typeof parsed === 'object' && 'keywords' in parsed) {
+                keywords = (parsed as { keywords: KeywordData[] }).keywords;
+            } else if (parsed && typeof parsed === 'object' && 'data' in parsed) {
+                keywords = (parsed as { data: KeywordData[] }).data;
+            } else if (parsed && typeof parsed === 'object') {
+                // Try to find any array property
+                const obj = parsed as Record<string, unknown>;
+                const arrayProp = Object.values(obj).find(v => Array.isArray(v));
+                if (arrayProp) {
+                    keywords = arrayProp as KeywordData[];
+                } else {
+                    console.error('Unexpected response structure:', JSON.stringify(parsed).substring(0, 500));
+                    throw new Error('AI returned unexpected data structure. Please try again.');
+                }
+            } else {
+                console.error('Unknown response type:', typeof parsed);
                 throw new Error('AI returned unexpected format. Please try again.');
             }
 
-            try {
-                const keywords: KeywordData[] = JSON.parse(jsonMatch[0]);
-                return keywords;
-            } catch (parseError) {
-                console.error('JSON parse error:', parseError);
-                console.error('Attempted to parse:', jsonMatch[0].substring(0, 500));
-                throw new Error('Failed to parse AI response. Please try again.');
+            // Validate we have keywords
+            if (!keywords || keywords.length === 0) {
+                throw new Error('No keywords found. Please try a different search term.');
             }
+
+            return keywords;
         } catch (error) {
             console.error('Keyword search error:', error);
             if (error instanceof Error && error.message.includes('401')) {
                 throw new Error('Invalid API key. Please check your OpenAI API key.');
             }
-            throw error; // Re-throw actual error for UI
+            if (error instanceof Error && error.message.includes('429')) {
+                throw new Error('Rate limit exceeded. Please wait a moment and try again.');
+            }
+            throw error;
         }
     }
 
