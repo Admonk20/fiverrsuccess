@@ -250,15 +250,32 @@ export class OpenAIService {
 
             const text = response.choices[0]?.message?.content || '';
 
-            // Extract JSON from the response
-            const jsonMatch = text.match(/\[[\s\S]*\]/);
-            if (!jsonMatch) {
-                console.error('Raw response:', text);
-                throw new Error('Invalid response format from AI');
+            // Extract JSON from the response - handle multiple formats
+            let jsonContent = text;
+
+            // Remove markdown code blocks if present
+            if (jsonContent.includes('```')) {
+                const codeBlockMatch = jsonContent.match(/```(?:json)?\s*([\s\S]*?)```/);
+                if (codeBlockMatch) {
+                    jsonContent = codeBlockMatch[1].trim();
+                }
             }
 
-            const keywords: KeywordData[] = JSON.parse(jsonMatch[0]);
-            return keywords;
+            // Try to find JSON array
+            const jsonMatch = jsonContent.match(/\[[\s\S]*\]/);
+            if (!jsonMatch) {
+                console.error('Raw response:', text);
+                throw new Error('AI returned unexpected format. Please try again.');
+            }
+
+            try {
+                const keywords: KeywordData[] = JSON.parse(jsonMatch[0]);
+                return keywords;
+            } catch (parseError) {
+                console.error('JSON parse error:', parseError);
+                console.error('Attempted to parse:', jsonMatch[0].substring(0, 500));
+                throw new Error('Failed to parse AI response. Please try again.');
+            }
         } catch (error) {
             console.error('Keyword search error:', error);
             if (error instanceof Error && error.message.includes('401')) {
