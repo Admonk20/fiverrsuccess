@@ -56,26 +56,28 @@ Keywords top sellers rank for but have low competition:
 
 ===== OUTPUT FORMAT =====
 
-Return EXACTLY this JSON (no markdown, no code blocks):
-[
-  {
-    "keyword": "exact buyer search phrase",
-    "source": "fiverr",
-    "competition": "low",
-    "trend": "up",
-    "relevance": 95,
-    "searchVolume": "high",
-    "difficulty": 45,
-    "buyerIntent": "high",
-    "keywordType": "long_tail",
-    "trendingScore": 85,
-    "competitorUsage": "common",
-    "seasonality": "evergreen",
-    "suggestedBid": "$1.50-$3.00",
-    "ordersInQueue": 12,
-    "recentSales": 2
-  }
-]
+You MUST return a JSON object with a "keywords" array property. Example format:
+{
+  "keywords": [
+    {
+      "keyword": "exact buyer search phrase",
+      "source": "fiverr",
+      "competition": "low",
+      "trend": "up",
+      "relevance": 95,
+      "searchVolume": "high",
+      "difficulty": 45,
+      "buyerIntent": "high",
+      "keywordType": "long_tail",
+      "trendingScore": 85,
+      "competitorUsage": "common",
+      "seasonality": "evergreen",
+      "suggestedBid": "$1.50-$3.00",
+      "ordersInQueue": 12,
+      "recentSales": 2
+    }
+  ]
+}
 
 Generate exactly 30 keywords total. Prioritize HIGH buyer intent and LOW difficulty keywords.
 Sort by: trendingScore (desc), then relevance (desc).`;
