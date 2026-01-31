@@ -278,6 +278,34 @@ body {
   background: rgba(29, 191, 115, 0.1);
 }
 
+.btn-success {
+  background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+  color: white;
+  box-shadow: var(--shadow-md), 0 0 20px rgba(245, 175, 25, 0.3);
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg), 0 0 30px rgba(245, 175, 25, 0.5);
+}
+
+.btn-success:active {
+  transform: translateY(0);
+}
+
+.btn-success:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.apply-improvements-btn {
+  margin-top: var(--space-lg);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
 .btn-lg {
   padding: var(--space-lg) var(--space-2xl);
   font-size: var(--font-size-lg);
