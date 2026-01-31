@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { BarChart3, Loader2, AlertCircle, CheckCircle, XCircle, Lightbulb } from 'lucide-react';
+import { BarChart3, Loader2, AlertCircle, CheckCircle, XCircle, Lightbulb, Wand2 } from 'lucide-react';
 import { openaiService } from '../services/openaiService';
 import type { GigScore } from '../types';
 
 export function GigScoreChecker() {
     const [description, setDescription] = useState('');
     const [isScoring, setIsScoring] = useState(false);
+    const [isImproving, setIsImproving] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [score, setScore] = useState<GigScore | null>(null);
 
@@ -33,6 +34,29 @@ export function GigScoreChecker() {
         }
     };
 
+    const handleApplyImprovements = async () => {
+        if (!score) return;
+
+        setIsImproving(true);
+        setError(null);
+
+        try {
+            const improvedDescription = await openaiService.improveGigDescription(
+                description,
+                score.improvements,
+                [...score.seoIssues, ...score.readabilityIssues, ...score.conversionIssues]
+            );
+            setDescription(improvedDescription);
+            // Re-score the improved description
+            const newScore = await openaiService.scoreGigDescription(improvedDescription);
+            setScore(newScore);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Failed to apply improvements');
+        } finally {
+            setIsImproving(false);
+        }
+    };
+
     const getGradeColor = (grade: string) => {
         switch (grade) {
             case 'A': return 'grade-a';
@@ -44,9 +68,9 @@ export function GigScoreChecker() {
         }
     };
 
-    const getScoreColor = (score: number) => {
-        if (score >= 80) return 'score-high';
-        if (score >= 60) return 'score-medium';
+    const getScoreColor = (scoreVal: number) => {
+        if (scoreVal >= 80) return 'score-high';
+        if (scoreVal >= 60) return 'score-medium';
         return 'score-low';
     };
 
@@ -69,7 +93,7 @@ export function GigScoreChecker() {
 
             <button
                 onClick={handleScore}
-                disabled={isScoring}
+                disabled={isScoring || isImproving}
                 className="btn btn-primary w-full"
             >
                 {isScoring ? (
@@ -178,8 +202,31 @@ export function GigScoreChecker() {
                             ))}
                         </ul>
                     </div>
+
+                    {/* Apply Improvements Button */}
+                    {(score.improvements.length > 0 || score.seoIssues.length > 0 ||
+                        score.readabilityIssues.length > 0 || score.conversionIssues.length > 0) && (
+                            <button
+                                onClick={handleApplyImprovements}
+                                disabled={isImproving}
+                                className="btn btn-success w-full apply-improvements-btn"
+                            >
+                                {isImproving ? (
+                                    <>
+                                        <Loader2 className="animate-spin" size={16} />
+                                        Rewriting Description...
+                                    </>
+                                ) : (
+                                    <>
+                                        <Wand2 size={16} />
+                                        Apply Improvements Automatically
+                                    </>
+                                )}
+                            </button>
+                        )}
                 </div>
             )}
         </div>
     );
 }
+

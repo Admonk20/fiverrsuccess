@@ -1,190 +1,213 @@
 import OpenAI from 'openai';
 import type { GeneratedGig, KeywordData } from '../types';
 
-const KEYWORD_RESEARCH_PROMPT = `You are an elite Fiverr keyword research expert with access to deep market intelligence. Perform comprehensive keyword research for this service.
+const KEYWORD_RESEARCH_PROMPT = `You are an elite Fiverr SEO analyst. Research comprehensive keywords for this service.
 
 Service/Niche: "{query}"
 
-===== DEEP RESEARCH METHODOLOGY =====
+===== MANDATORY SOURCE DISTRIBUTION =====
 
-**PHASE 1: Core Fiverr Keywords (8 keywords)**
-Research what buyers ACTUALLY type on Fiverr:
-- Action-based: "I need", "help me", "create my", "fix my"
-- Urgent: "urgent", "asap", "same day", "rush"
-- Budget: "cheap", "affordable", "budget", "best value"
-- Quality: "premium", "professional", "high quality", "expert"
-- Format-specific: Include file types, dimensions, platforms
+You MUST provide keywords from ALL 5 sources with EXACT counts:
 
-**PHASE 2: Reddit/Forum Keywords (6 keywords)**
-Phrases from r/forhire, r/slavelabour, r/freelance, Discord servers:
-- Real questions people ask
-- Pain points they describe
-- Specific outcomes they want
+**SOURCE: "fiverr" (8 keywords)**
+Buyer search terms on Fiverr marketplace:
+- "I need [service]", "help with [task]", "create [deliverable]"
+- Include modifiers: urgent, cheap, professional, best, fast
+- Platform-specific: "fiverr [service]", "[service] gig"
 
-**PHASE 3: Google/SEO Keywords (6 keywords)**
-Commercial intent searches:
-- "hire [service] online"
-- "best [service] freelancer"
-- "[service] for small business"
-- Comparison searches: "[service] vs [alternative]"
+**SOURCE: "reddit" (6 keywords)**
+From r/forhire, r/Entrepreneur, r/smallbusiness:
+- Questions people ask: "looking for someone to..."
+- Pain points: "struggling with...", "can't figure out..."
+- Specific outcomes buyers want
 
-**PHASE 4: Trending & Hot Keywords (6 keywords)**
-Currently trending in 2024-2025:
-- AI-related variations
-- Platform-specific (TikTok, Reels, Shorts)
-- Industry buzzwords
-- Seasonal opportunities
+**SOURCE: "google" (6 keywords)**
+Commercial intent SEO keywords:
+- "hire [service] freelancer", "best [service] online"
+- "[service] services near me", "[service] agency"
+- Comparison: "[service] vs [alternative]"
 
-**PHASE 5: Competitor Gap Keywords (4 keywords)**
-Keywords top sellers rank for but have low competition:
-- Long-tail variations of popular searches
-- Underserved niches
+**SOURCE: "trending" (6 keywords)**
+Hot in 2024-2025:
+- AI-powered variations
+- Platform-specific (TikTok, Reels, Shorts, Threads)
+- Industry buzzwords and new technologies
+
+**SOURCE: "competitor" (4 keywords)**
+Underserved niches with low competition:
+- Long-tail variations top sellers miss
 - Emerging sub-services
+- Gaps in marketplace offerings
 
-===== FOR EACH KEYWORD, ANALYZE =====
+===== FOR EACH KEYWORD =====
 
-1. **searchVolume**: Estimate based on market size (low, medium, high, very_high)
-2. **difficulty**: How hard to rank (1-100)
-3. **buyerIntent**: Will they buy immediately? (high, medium, low)
-4. **trendingScore**: Current momentum (1-100)
-5. **keywordType**: Classification (long_tail, short_tail, question, comparison, action)
-6. **competitorUsage**: How many sellers use this? (rare, common, saturated)
-7. **seasonality**: Time-based demand (evergreen, seasonal, trending_now)
-8. **suggestedBid**: CPC estimate like "$0.50-$2.00"
-9. **ordersInQueue**: Estimate active orders (0-50) based on typical demand.
-10. **recentSales**: Estimate days since last sale (0-30).
+1. keyword: The exact search phrase
+2. source: MUST be one of: "fiverr", "reddit", "google", "trending", "competitor"
+3. competition: "low", "medium", "high"
+4. trend: "up", "stable", "down"
+5. relevance: 1-100
+6. searchVolume: "low", "medium", "high", "very_high"
+7. difficulty: 1-100 (lower = easier to rank)
+8. buyerIntent: "high", "medium", "low"
+9. keywordType: "long_tail", "short_tail", "question", "comparison", "action"
+10. trendingScore: 1-100
+11. competitorUsage: "rare", "common", "saturated"
+12. seasonality: "evergreen", "seasonal", "trending_now"
+13. suggestedBid: CPC estimate "$X.XX-$X.XX"
+14. ordersInQueue: 0-50
+15. recentSales: 0-30 (days since last sale)
 
-===== OUTPUT FORMAT =====
+===== OUTPUT =====
 
-You MUST return a JSON object with a "keywords" array property. Example format:
+Return JSON object:
 {
   "keywords": [
-    {
-      "keyword": "exact buyer search phrase",
-      "source": "fiverr",
-      "competition": "low",
-      "trend": "up",
-      "relevance": 95,
-      "searchVolume": "high",
-      "difficulty": 45,
-      "buyerIntent": "high",
-      "keywordType": "long_tail",
-      "trendingScore": 85,
-      "competitorUsage": "common",
-      "seasonality": "evergreen",
-      "suggestedBid": "$1.50-$3.00",
-      "ordersInQueue": 12,
-      "recentSales": 2
-    }
+    { ...keyword object with ALL fields... }
   ]
 }
 
-Generate exactly 30 keywords total. Prioritize HIGH buyer intent and LOW difficulty keywords.
-Sort by: trendingScore (desc), then relevance (desc).`;
+CRITICAL: Generate EXACTLY 30 keywords with the exact source distribution above (8+6+6+6+4=30).`;
 
-const GIG_GENERATION_PROMPT = `You are the #1 Fiverr gig optimization expert. You write gigs that get clicks and orders.
+const GIG_GENERATION_PROMPT = `You are a Fiverr SEO expert who creates gigs that RANK HIGH and CONVERT.
 
-Keywords: {keywords}
+Top Keywords: {keywords}
 Niche: {niche}
 
-===== CRITICAL REQUIREMENTS =====
+===== GIG TITLE (EXACTLY 80 characters) =====
 
-**LANGUAGE RULES** (Grade 6 reading level):
-- Use simple, everyday words
-- Short sentences (max 15 words)
-- Write like you're talking to a friend
-- No jargon or fancy words
-- Use "you" and "your" frequently
+Create a KEYWORD-STUFFED title that includes multiple high-ranking keywords.
+Format: "I will [keyword1] [keyword2] [keyword3] for [outcome]"
 
-**TITLE** (max 80 characters, starts with "I will"):
-- Include the #1 keyword naturally
-- Be specific about what you deliver
-- Include a power word (fast, stunning, professional)
-- Example: "I will design a stunning logo for your business in 24 hours"
+GOOD: "I will design logo brand identity business card letterhead for startup"
+BAD: "I will design a beautiful logo for your business" (too generic, wastes characters)
 
-**SEARCH TAGS** (5 tags, each max 20 chars, max 3 words):
-- Mix of specific + broad terms
-- Include at least 2 long-tail keywords
-- No generic tags like "design" alone
+Pack as many relevant keywords as possible. Readability is secondary to SEO.
 
-**DESCRIPTION** (MUST follow this EXACT structure):
+===== METADATA (Use REAL Fiverr Categories) =====
 
-Paragraph 1 - THE HOOK (emotional question):
-"Tired of [pain point]? 🤔" or "Need [outcome] fast? ⚡"
+Choose from actual Fiverr categories:
+- Graphics & Design > Logo Design, Brand Style Guides, Business Cards, Illustration
+- Programming & Tech > Web Development, Mobile Apps, WordPress, AI Services
+- Digital Marketing > Social Media Marketing, SEO, Video Marketing
+- Video & Animation > Video Editing, Animation, Explainer Videos
+- Writing & Translation > Content Writing, Copywriting, Translation
+- AI Services > AI Development, AI Art, AI Content
 
-Paragraph 2 - WHAT YOU GET (bullet benefits):
-"Here's what I'll deliver:
-✅ [Specific deliverable 1]
-✅ [Specific deliverable 2]
-✅ [Specific deliverable 3]
-✅ [Bonus if any]"
+===== SEARCH TAGS (5 tags, max 20 chars each) =====
 
-Paragraph 3 - TRUST BUILDER (1-2 sentences):
-Brief credibility statement.
+Use high-intent buyer keywords that get searched:
+- Mix of broad + specific long-tail
+- Include related keywords not in title
+- Research what buyers actually search
 
-Paragraph 4 - CTA (urgency + action):
-"Ready to [achieve goal]? 👉 Order now and let's make it happen!"
+===== PRICING (Realistic for the service) =====
 
-Total: 800-1000 characters. Simple words only.
+Research actual Fiverr pricing for this service category:
+- Basic: Entry-level, minimal features ($5-$25 typical)
+- Standard: Most popular, good value ($25-$75 typical)  
+- Premium: Full service, all features ($75-$200+ typical)
 
-**FAQS** (5 questions buyers ACTUALLY ask):
-- About revisions and changes
-- About timeline and delivery
-- About file formats
-- About communication
-- About refunds or guarantees
-Use simple, friendly answers.
+Each tier MUST have UNIQUE descriptions explaining the VALUE difference.
 
-**REQUIREMENTS** (4-5 buyer questions):
-Ask only what you NEED to start. Be specific.
+===== DESCRIPTION (1200 characters minimum) =====
 
-**IMAGE PROMPT**:
-Describe a clean, professional gig image. Fiverr style: clean background, bold text, relevant imagery.
+Structure for SEO and conversions:
+
+HOOK (emotional + keyword-rich):
+"🚀 Looking for [keyword]? Need [keyword] that [benefit]?"
+
+WHAT YOU GET (keyword-stuffed bullet points):
+"✅ [Keyword-rich deliverable 1]
+✅ [Keyword-rich deliverable 2]
+✅ [Keyword-rich deliverable 3]
+✅ [Keyword-rich deliverable 4]"
+
+WHY CHOOSE ME (credibility + keywords):
+"With [X] years of experience in [keyword niche], I deliver [keyword] that [benefit]."
+
+PROCESS:
+"📋 How it works:
+1. [Step with keyword]
+2. [Step with keyword]
+3. [Step with keyword]"
+
+CTA:
+"💬 Message me now for [keyword]! Order today for [benefit]."
+
+Use emojis strategically. Pack keywords naturally throughout.
+
+===== FAQS (5 service-specific questions) =====
+
+Real questions THIS service's buyers ask:
+- Specific to the deliverables
+- About the process for THIS service
+- Timeline for THIS type of work
+- Format/file types for THIS service
+- Revision policy for THIS work
+
+===== REQUIREMENTS (4-5 specific questions) =====
+
+What you ACTUALLY need to start THIS service:
+- Service-specific inputs
+- File formats needed
+- Brand assets required
+- Goals and preferences
+
+===== IMAGE PROMPT =====
+
+Create a prompt for a professional Fiverr thumbnail:
+- Show the service outcome visually
+- Clean, modern design
+- NO TEXT (AI can't spell correctly)
+- Include relevant imagery/mockups
+- Professional humans if appropriate
+- Vibrant colors, high contrast
 
 ===== OUTPUT FORMAT =====
-Return ONLY valid JSON (no markdown blocks):
+
+Return valid JSON:
 {
-  "title": "I will...",
+  "title": "I will [80 chars keyword-stuffed title]",
   "metadata": {
-    "category": "string",
-    "subcategory": "string",
-    "serviceType": "string"
+    "category": "Graphics & Design",
+    "subcategory": "Logo Design",
+    "serviceType": "Minimalist Logo"
   },
-  "searchTags": ["tag1", "tag2", "tag3", "tag4", "tag5"],
+  "searchTags": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"],
   "pricing": {
     "basic": {
       "name": "Starter",
-      "price": number,
-      "description": "One sentence, simple",
-      "deliveryTime": "X days",
-      "revisions": number,
-      "features": ["feature1", "feature2", "feature3"]
+      "price": 15,
+      "description": "Unique value proposition for this tier",
+      "deliveryTime": "3 days",
+      "revisions": 1,
+      "features": ["Feature 1", "Feature 2"]
     },
     "standard": {
       "name": "Professional",
-      "price": number,
-      "description": "One sentence, simple",
-      "deliveryTime": "X days",
-      "revisions": number,
-      "features": ["feature1", "feature2", "feature3", "feature4"]
+      "price": 45,
+      "description": "Unique value proposition for this tier",
+      "deliveryTime": "2 days",
+      "revisions": 3,
+      "features": ["Feature 1", "Feature 2", "Feature 3"]
     },
     "premium": {
       "name": "Enterprise",
-      "price": number,
-      "description": "One sentence, simple",
-      "deliveryTime": "X days",
-      "revisions": number,
-      "features": ["feature1", "feature2", "feature3", "feature4", "feature5"]
+      "price": 99,
+      "description": "Unique value proposition for this tier",
+      "deliveryTime": "1 day",
+      "revisions": "unlimited",
+      "features": ["Feature 1", "Feature 2", "Feature 3", "Feature 4"]
     }
   },
-  "description": "The full description following the exact structure above",
+  "description": "1200+ character keyword-rich description",
   "faqs": [
-    {"question": "Real buyer question", "answer": "Simple, friendly answer"}
+    {"question": "Service-specific question", "answer": "Helpful answer"}
   ],
   "requirements": [
-    {"question": "What I need from you", "type": "text|file|multiple_choice", "required": true, "options": []}
+    {"question": "Service-specific requirement", "type": "text", "required": true, "options": []}
   ],
-  "imagePrompt": "Professional gig cover image description"
+  "imagePrompt": "Professional thumbnail prompt with no text"
 }`;
 
 export class OpenAIService {
@@ -518,34 +541,36 @@ Return ONLY valid JSON array:
             throw new Error('OpenAI API not initialized');
         }
 
-        const prompt = `Generate 5 title variations for this Fiverr gig:
+        const keywordList = gig.keywords?.map(k => k.keyword).slice(0, 15).join(', ') || gig.title;
+
+        const prompt = `Create 5 KEYWORD-STUFFED title variations for this Fiverr gig.
 
 Current Title: ${gig.title}
-Niche: ${gig.metadata?.category || 'General'}
-Top Keywords: ${gig.searchTags?.join(', ') || 'N/A'}
+Available Keywords: ${keywordList}
+Category: ${gig.metadata?.category || 'Service'}
 
-Create 5 different title strategies:
-1. EMOTIONAL - Triggers feelings (fear of missing out, excitement)
-2. BENEFIT - Focuses on the outcome/result
-3. KEYWORD - Maximizes SEO with primary keywords
-4. URGENCY - Creates time pressure
-5. SOCIAL_PROOF - Implies popularity/trust
+CRITICAL RULES:
+1. Each title MUST be EXACTLY 80 characters (use all available space)
+2. Pack as many HIGH-RANKING keywords as possible
+3. DO NOT write readable sentences - stuff keywords for SEO visibility
+4. Start with "I will" then keyword keyword keyword
+5. Each variation must use a DIFFERENT keyword combination
 
-Each title MUST:
-- Start with "I will"
-- Be max 80 characters
-- Sound natural, not spammy
+GOOD EXAMPLE: "I will design logo brand identity business card letterhead stationery startup"
+BAD EXAMPLE: "I will create a beautiful and professional logo for your business" (wastes characters)
 
 Return ONLY valid JSON array:
 [
     {
-        "title": "I will...",
-        "strategy": "emotional",
-        "strategyLabel": "🎯 Emotional Hook",
-        "explanation": "Why this works",
+        "title": "I will [80 chars of keyword-packed title]",
+        "strategy": "keyword",
+        "strategyLabel": "Keyword Cluster #1",
+        "explanation": "Targets: keyword1, keyword2, keyword3",
         "predictedCTR": "high"
     }
-]`;
+]
+
+Create 5 variations, each targeting different keyword combinations from the provided list.`;
 
         try {
             const response = await this.client.chat.completions.create({
@@ -553,12 +578,12 @@ Return ONLY valid JSON array:
                 messages: [
                     {
                         role: 'system',
-                        content: 'You are a Fiverr title optimization expert. Create compelling title variations using different psychological strategies. Return only valid JSON array.'
+                        content: 'You are a Fiverr SEO expert. Create keyword-stuffed titles for maximum search visibility. Readability is secondary to SEO rankings. Return only valid JSON array.'
                     },
                     { role: 'user', content: prompt }
                 ],
                 temperature: 0.8,
-                max_tokens: 1500
+                max_tokens: 2000
             });
 
             const text = response.choices[0]?.message?.content || '';
@@ -631,6 +656,64 @@ Return ONLY valid JSON:
         } catch (error) {
             console.error('Gig scoring error:', error);
             throw new Error('Failed to score gig. Please try again.');
+        }
+    }
+
+    async improveGigDescription(
+        description: string,
+        improvements: string[],
+        issues: string[]
+    ): Promise<string> {
+        if (!this.client) {
+            throw new Error('OpenAI API not initialized');
+        }
+
+        const prompt = `Rewrite this Fiverr gig description to fix ALL the listed issues while implementing ALL recommended improvements.
+
+ORIGINAL DESCRIPTION:
+${description}
+
+ISSUES TO FIX:
+${issues.map((issue, i) => `${i + 1}. ${issue}`).join('\n')}
+
+IMPROVEMENTS TO APPLY:
+${improvements.map((imp, i) => `${i + 1}. ${imp}`).join('\n')}
+
+REWRITING RULES:
+1. Keep the seller's voice and style - don't sound robotic
+2. Maintain the same service offering - don't change what they sell
+3. Add power words: "proven", "guaranteed", "exclusive", "fast"
+4. Use short sentences (max 15 words each)
+5. Include numbers and specifics where possible
+6. Add urgency and scarcity (limited slots, busy schedule)
+7. Target 1200-1500 characters total (Fiverr sweet spot)
+8. Use formatting: bold key benefits with **text**, add bullet points with ✓
+9. Include a strong CTA at the end
+10. Add social proof elements (years experience, satisfied clients)
+
+Return ONLY the improved description text - no JSON, no quotes, just the raw description ready to paste into Fiverr.`;
+
+        try {
+            const response = await this.client.chat.completions.create({
+                model: 'gpt-4o',
+                messages: [
+                    {
+                        role: 'system',
+                        content: 'You are a Fiverr gig copywriting expert. Rewrite descriptions to be more compelling, SEO-optimized, and conversion-focused while keeping the seller\'s authentic voice.'
+                    },
+                    { role: 'user', content: prompt }
+                ],
+                temperature: 0.7,
+                max_tokens: 2000
+            });
+
+            const text = response.choices[0]?.message?.content || '';
+            if (!text) throw new Error('No improved description generated');
+
+            return text.trim();
+        } catch (error) {
+            console.error('Gig improvement error:', error);
+            throw new Error('Failed to improve gig. Please try again.');
         }
     }
 

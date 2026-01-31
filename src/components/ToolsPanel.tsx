@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
     Wrench, Target, Layers, Type, Award, Bell, Image, Globe,
     Frame, ChevronRight, User as UserIcon, TrendingUp
@@ -16,6 +16,7 @@ import { GigImageSuite } from './GigImageSuite';
 import { PortfolioMockupGenerator } from './PortfolioMockupGenerator';
 import { MultiLanguageExpander } from './MultiLanguageExpander';
 import { keywordIntelligence } from '../services/keywordIntelligence';
+import { openaiService } from '../services/openaiService';
 import type { GeneratedGig, KeywordData, KeywordAlert, KeywordConfidence, UserSpecialty, KeywordCluster } from '../types';
 
 interface ToolsPanelProps {
@@ -71,8 +72,31 @@ export function ToolsPanel({ userId, keywords, generatedGig, onSearch }: ToolsPa
     const [alerts, setAlerts] = useState<KeywordAlert[]>([]);
     const [confidenceScores, setConfidenceScores] = useState<KeywordConfidence[]>([]);
     const [specialty, setSpecialty] = useState<UserSpecialty | null>(null);
-    const [clusters] = useState<KeywordCluster[]>([]);
+    const [clusters, setClusters] = useState<KeywordCluster[]>([]);
+    const [isLoadingClusters, setIsLoadingClusters] = useState(false);
     const [isExpanded, setIsExpanded] = useState(true);
+
+    // Auto-generate clusters when keywords change
+    useEffect(() => {
+        if (keywords.length > 0 && clusters.length === 0) {
+            generateClusters();
+        }
+    }, [keywords]);
+
+    // Generate keyword clusters
+    const generateClusters = async () => {
+        if (keywords.length === 0 || isLoadingClusters) return;
+
+        setIsLoadingClusters(true);
+        try {
+            const result = await openaiService.clusterKeywords(keywords);
+            setClusters(result);
+        } catch (error) {
+            console.error('Failed to generate clusters:', error);
+        } finally {
+            setIsLoadingClusters(false);
+        }
+    };
 
     // Calculate confidence scores when keywords change
     const calculateConfidences = () => {
@@ -87,6 +111,10 @@ export function ToolsPanel({ userId, keywords, generatedGig, onSearch }: ToolsPa
         keywordIntelligence.setSpecialty(spec);
         // Generate initial alerts
         keywordIntelligence.generateAlerts(spec).then(setAlerts);
+        // Trigger keyword search if callback provided
+        if (onSearch && spec.primaryService) {
+            onSearch(spec.primaryService);
+        }
     };
 
     const handleDismissAlert = (id: string) => {
@@ -99,12 +127,25 @@ export function ToolsPanel({ userId, keywords, generatedGig, onSearch }: ToolsPa
         }
     };
 
-    const handleTrackKeyword = (keyword: string) => {
+    const handleTrackKeyword = async (keyword: string) => {
         const kw = keywords.find(k => k.keyword === keyword);
         const conf = confidenceScores.find(c => c.keyword === keyword);
         if (kw && conf) {
-            keywordIntelligence.trackKeyword(kw, conf);
+            try {
+                await keywordIntelligence.trackKeyword(kw, conf);
+                alert(`✅ Now tracking: "${keyword}"`);
+            } catch (error) {
+                console.error('Failed to track keyword:', error);
+                alert('Failed to track keyword. Please try again.');
+            }
         }
+    };
+
+    // Handle tab click
+    const handleTabClick = (tool: Tool) => {
+        setActiveTab(tool.id);
+        if (tool.id === 'confidence') calculateConfidences();
+        if (tool.id === 'clusters' && clusters.length === 0) generateClusters();
     };
 
     // Get tools grouped by category
@@ -143,10 +184,7 @@ export function ToolsPanel({ userId, keywords, generatedGig, onSearch }: ToolsPa
                                 {tools.map(tool => (
                                     <button
                                         key={tool.id}
-                                        onClick={() => {
-                                            setActiveTab(tool.id);
-                                            if (tool.id === 'confidence') calculateConfidences();
-                                        }}
+                                        onClick={() => handleTabClick(tool)}
                                         disabled={isToolDisabled(tool)}
                                         className={`tool-btn ${activeTab === tool.id ? 'active' : ''} ${isToolDisabled(tool) ? 'disabled' : ''}`}
                                     >
