@@ -288,6 +288,21 @@ CRITICAL: You MUST return a valid JSON object with this EXACT structure:
 
             let text = response.choices[0]?.message?.content || '';
 
+            // Log detailed response info for debugging
+            console.log('OpenAI Response Details:', {
+                id: response.id,
+                model: response.model,
+                finish_reason: response.choices[0]?.finish_reason,
+                content_length: text.length,
+                content_preview: text.substring(0, 200)
+            });
+
+            // Check for empty response
+            if (!text || text.trim().length === 0) {
+                console.error('Empty response from GPT-5.2. Finish reason:', response.choices[0]?.finish_reason);
+                throw new Error('AI returned empty response. The model may be overloaded - please try again.');
+            }
+
             // Debug: log first 500 chars of response
             console.log('AI Response (first 500 chars):', text.substring(0, 500));
 
