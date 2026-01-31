@@ -404,19 +404,35 @@ CRITICAL: You MUST return a valid JSON object with this EXACT structure:
         } catch (error) {
             console.error('Keyword search error:', error);
 
+            // Extract detailed error message
+            let errorMessage = 'Keyword research failed';
+            let errorDetails = '';
+
             if (error instanceof Error) {
-                if (error.message.includes('401')) {
+                errorDetails = error.message;
+                console.error('Error details:', errorDetails);
+
+                // Check for specific API errors
+                if (errorDetails.includes('401') || errorDetails.includes('Unauthorized')) {
                     throw new Error('Invalid API key. Please check your OpenAI API key.');
                 }
-                if (error.message.includes('429')) {
+                if (errorDetails.includes('429') || errorDetails.includes('rate limit')) {
                     throw new Error('Rate limit exceeded. Please wait a moment and try again.');
                 }
-                if (error.message.includes('AI returned')) {
-                    throw error; // Re-throw our custom errors
+                if (errorDetails.includes('404') || errorDetails.includes('model')) {
+                    throw new Error(`Model error: ${errorDetails}. Check if your API key has access to gpt-5.2.`);
                 }
+                if (errorDetails.includes('insufficient_quota')) {
+                    throw new Error('API quota exhausted. Please check your OpenAI billing.');
+                }
+                if (errorDetails.includes('AI returned')) {
+                    throw error; // Re-throw our custom parsing errors
+                }
+
+                errorMessage = errorDetails;
             }
 
-            throw new Error('Keyword research failed. Please try again.');
+            throw new Error(`Keyword research failed: ${errorMessage}`);
         }
     }
 
