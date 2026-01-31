@@ -283,7 +283,7 @@ CRITICAL: You MUST return a valid JSON object with this EXACT structure:
                 ],
                 response_format: { type: 'json_object' },
                 temperature: 0.7,
-                max_tokens: 4000
+                max_completion_tokens: 4000
             });
 
             let text = response.choices[0]?.message?.content || '';
@@ -466,7 +466,7 @@ CRITICAL: You MUST return a valid JSON object with this EXACT structure:
                     }
                 ],
                 temperature: 0.7,
-                max_tokens: 3500
+                max_completion_tokens: 3500
             });
 
             const text = response.choices[0]?.message?.content || '';
@@ -565,7 +565,7 @@ Return ONLY valid JSON (no markdown):
                     { role: 'user', content: prompt }
                 ],
                 temperature: 0.7,
-                max_tokens: 2000
+                max_completion_tokens: 2000
             });
 
             const text = response.choices[0]?.message?.content || '';
@@ -631,7 +631,7 @@ Return ONLY valid JSON array:
                     { role: 'user', content: prompt }
                 ],
                 temperature: 0.6,
-                max_tokens: 2500
+                max_completion_tokens: 2500
             });
 
             const text = response.choices[0]?.message?.content || '';
@@ -692,7 +692,7 @@ Create 5 variations, each targeting different keyword combinations from the prov
                     { role: 'user', content: prompt }
                 ],
                 temperature: 0.8,
-                max_tokens: 2000
+                max_completion_tokens: 2000
             });
 
             const text = response.choices[0]?.message?.content || '';
@@ -754,7 +754,7 @@ Return ONLY valid JSON:
                     { role: 'user', content: prompt }
                 ],
                 temperature: 0.5,
-                max_tokens: 1500
+                max_completion_tokens: 1500
             });
 
             const text = response.choices[0]?.message?.content || '';
@@ -813,7 +813,7 @@ Return ONLY the improved description text - no JSON, no quotes, just the raw des
                     { role: 'user', content: prompt }
                 ],
                 temperature: 0.7,
-                max_tokens: 2000
+                max_completion_tokens: 2000
             });
 
             const text = response.choices[0]?.message?.content || '';
@@ -885,7 +885,7 @@ Return ONLY valid JSON:
                         { role: 'user', content: prompt }
                     ],
                     temperature: 0.7,
-                    max_tokens: 2000
+                    max_completion_tokens: 2000
                 });
 
                 const text = response.choices[0]?.message?.content || '';
