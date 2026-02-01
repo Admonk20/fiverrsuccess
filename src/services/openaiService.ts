@@ -209,7 +209,7 @@ export class OpenAIService {
 
         try {
             const response = await this.client.chat.completions.create({
-                model: 'gpt-5',
+                model: 'gpt-5.2-pro',
                 messages: [
                     {
                         role: 'system',
@@ -407,7 +407,7 @@ export class OpenAIService {
 
         try {
             const response = await this.client.chat.completions.create({
-                model: 'gpt-5',
+                model: 'gpt-5.2-pro',
                 messages: [
                     {
                         role: 'system',
@@ -550,7 +550,7 @@ Return ONLY valid JSON (no markdown):
 
         try {
             const response = await this.client.chat.completions.create({
-                model: 'gpt-5',
+                model: 'gpt-5.2-pro',
                 messages: [
                     {
                         role: 'system',
@@ -616,7 +616,7 @@ Return ONLY valid JSON array:
 
         try {
             const response = await this.client.chat.completions.create({
-                model: 'gpt-5',
+                model: 'gpt-5.2-pro',
                 messages: [
                     {
                         role: 'system',
@@ -677,7 +677,7 @@ Create 5 variations, each targeting different keyword combinations from the prov
 
         try {
             const response = await this.client.chat.completions.create({
-                model: 'gpt-5',
+                model: 'gpt-5.2-pro',
                 messages: [
                     {
                         role: 'system',
@@ -739,7 +739,7 @@ Return ONLY valid JSON:
 
         try {
             const response = await this.client.chat.completions.create({
-                model: 'gpt-5',
+                model: 'gpt-5.2-pro',
                 messages: [
                     {
                         role: 'system',
@@ -798,7 +798,7 @@ Return ONLY the improved description text - no JSON, no quotes, just the raw des
 
         try {
             const response = await this.client.chat.completions.create({
-                model: 'gpt-5',
+                model: 'gpt-5.2-pro',
                 messages: [
                     {
                         role: 'system',
@@ -870,7 +870,7 @@ Return ONLY valid JSON:
 
             try {
                 const response = await this.client.chat.completions.create({
-                    model: 'gpt-5',
+                    model: 'gpt-5.2-pro',
                     messages: [
                         {
                             role: 'system',
