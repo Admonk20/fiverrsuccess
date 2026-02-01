@@ -1,72 +1,23 @@
 import OpenAI from 'openai';
 import type { GeneratedGig, KeywordData } from '../types';
 
-const KEYWORD_RESEARCH_PROMPT = `You are an elite Fiverr SEO analyst. Research comprehensive keywords for this service.
+const KEYWORD_RESEARCH_PROMPT = `Research 30 Fiverr keywords for: "{query}"
 
-Service/Niche: "{query}"
-
-===== MANDATORY SOURCE DISTRIBUTION =====
-
-You MUST provide keywords from ALL 5 sources with EXACT counts:
-
-**SOURCE: "fiverr" (8 keywords)**
-Buyer search terms on Fiverr marketplace:
-- "I need [service]", "help with [task]", "create [deliverable]"
-- Include modifiers: urgent, cheap, professional, best, fast
-- Platform-specific: "fiverr [service]", "[service] gig"
-
-**SOURCE: "reddit" (6 keywords)**
-From r/forhire, r/Entrepreneur, r/smallbusiness:
-- Questions people ask: "looking for someone to..."
-- Pain points: "struggling with...", "can't figure out..."
-- Specific outcomes buyers want
-
-**SOURCE: "google" (6 keywords)**
-Commercial intent SEO keywords:
-- "hire [service] freelancer", "best [service] online"
-- "[service] services near me", "[service] agency"
-- Comparison: "[service] vs [alternative]"
-
-**SOURCE: "trending" (6 keywords)**
-Hot in 2024-2025:
-- AI-powered variations
-- Platform-specific (TikTok, Reels, Shorts, Threads)
-- Industry buzzwords and new technologies
-
-**SOURCE: "competitor" (4 keywords)**
-Underserved niches with low competition:
-- Long-tail variations top sellers miss
-- Emerging sub-services
-- Gaps in marketplace offerings
-
-===== FOR EACH KEYWORD =====
-
-1. keyword: The exact search phrase
-2. source: MUST be one of: "fiverr", "reddit", "google", "trending", "competitor"
-3. competition: "low", "medium", "high"
-4. trend: "up", "stable", "down"
-5. relevance: 1-100
-6. searchVolume: "low", "medium", "high", "very_high"
-7. difficulty: 1-100 (lower = easier to rank)
-8. buyerIntent: "high", "medium", "low"
-9. keywordType: "long_tail", "short_tail", "question", "comparison", "action"
-10. trendingScore: 1-100
-11. competitorUsage: "rare", "common", "saturated"
-12. seasonality: "evergreen", "seasonal", "trending_now"
-13. suggestedBid: CPC estimate "$X.XX-$X.XX"
-14. ordersInQueue: 0-50
-15. recentSales: 0-30 (days since last sale)
-
-===== OUTPUT =====
-
-Return JSON object:
+Return JSON with this structure:
 {
   "keywords": [
-    { ...keyword object with ALL fields... }
+    {
+      "keyword": "search term buyers use",
+      "source": "fiverr|reddit|google|trending|competitor",
+      "relevance": 85,
+      "searchVolume": "low|medium|high|very_high",
+      "competition": "low|medium|high",
+      "trend": "up|down|stable|hot"
+    }
   ]
 }
 
-CRITICAL: Generate EXACTLY 30 keywords with the exact source distribution above (8+6+6+6+4=30).`;
+Mix sources: 8 fiverr, 6 reddit, 6 google, 6 trending, 4 competitor keywords.`;
 
 const GIG_GENERATION_PROMPT = `You are a Fiverr SEO expert who creates gigs that RANK HIGH and CONVERT.
 
