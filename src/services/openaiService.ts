@@ -213,28 +213,15 @@ export class OpenAIService {
                 messages: [
                     {
                         role: 'system',
-                        content: `You are an elite Fiverr keyword research analyst. 
-                        
-CRITICAL: You MUST return a valid JSON object with this EXACT structure:
-{
-  "keywords": [
-    {"keyword": "example", "source": "fiverr", "relevance": 85, "searchVolume": "medium", "competition": "low", "trend": "up"}
-  ]
-}
-
-- Return 25-30 keywords
-- Each keyword MUST have: keyword (string), source (string), relevance (number 1-100)
-- Optional: searchVolume, competition, trend
-- NO markdown, NO explanations, ONLY the JSON object`
+                        content: 'You are a Fiverr keyword research expert. Always respond with valid JSON only, no other text.'
                     },
                     {
                         role: 'user',
                         content: prompt
                     }
                 ],
-                response_format: { type: 'json_object' },
                 temperature: 0.7,
-                max_completion_tokens: 4000
+                max_completion_tokens: 8000
             });
 
             let text = response.choices[0]?.message?.content || '';
