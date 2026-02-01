@@ -457,18 +457,59 @@ export class OpenAIService {
         }
     }
 
-    async generateImage(prompt: string): Promise<string> {
+    async generateImage(prompt: string, options?: {
+        mainHeadline?: string;
+        services?: string[];
+        toolsTheme?: string;
+        subjectDescription?: string;
+        outfitDescription?: string;
+    }): Promise<string> {
         if (!this.client) {
             throw new Error('OpenAI API not initialized');
+        }
+
+        // Build the professional Fiverr gig thumbnail prompt
+        let imagePrompt: string;
+
+        if (options?.mainHeadline) {
+            // Use the detailed professional template
+            const services = options.services || ['Premium Quality', 'Fast Delivery', '24/7 Support', 'Unlimited Revisions'];
+            const servicesList = services.slice(0, 5).join(', ');
+            const toolsTheme = options.toolsTheme || 'professional design and productivity tools';
+            const subjectDescription = options.subjectDescription || 'a professional freelancer';
+            const outfitDescription = options.outfitDescription || 'a smart casual shirt';
+
+            imagePrompt = `Create a modern, realistic gig thumbnail banner in a wide 3:2 layout. Use a dark blue-to-purple tech background with subtle glowing particles, light streaks, and a faint world map silhouette on the right side. Add a bold purple gradient headline ribbon across the top-left area with large all-caps white text reading '${options.mainHeadline}' (thick sans-serif, slight glow/outline, very high contrast).
+
+On the left, place a clean white rounded-rectangle info card with a soft shadow. Inside it, add a checklist of services: ${servicesList}. Each line should have a yellow circular checkmark icon and dark text, evenly spaced, neat alignment.
+
+Near the center-left, add a vertical stack of 4-6 small platform/tool icons (generic app-style icons that match ${toolsTheme}, not text-heavy), sized like social/app badges.
+
+Along the bottom-left to bottom-center, add 3-5 rounded 'pill' badges containing simple tool logos/icons that match ${toolsTheme}. Keep them evenly spaced and aligned.
+
+On the right third, include a realistic cutout portrait photo of ${subjectDescription} (professional, friendly smile, wearing ${outfitDescription}), clean studio lighting, sharp edges, slight drop shadow, facing slightly toward the center content.
+
+Design should look like a polished marketing banner: crisp, sharp, readable, modern, high contrast, realistic photo + graphic layout. No 3D, no cartoon, no illustrated character. Avoid messy clutter and avoid tiny unreadable text.`;
+        } else {
+            // Fallback to simpler but still professional prompt
+            imagePrompt = `Create a professional Fiverr gig thumbnail banner: ${prompt}. 
+            
+Style requirements:
+- Modern dark blue-to-purple gradient background with subtle tech elements
+- Clean, high-contrast design with bold readable text
+- Professional marketing banner aesthetic
+- Sharp, crisp, 4K quality
+- No 3D renders, no cartoon characters
+- Minimal clutter, maximum impact`;
         }
 
         try {
             const response = await this.client.images.generate({
                 model: "dall-e-3",
-                prompt: `Professional Fiverr Gig Thumbnail: ${prompt}. High quality, 4k, clean composition, vibrant colors, text-free or minimal text.`,
+                prompt: imagePrompt,
                 n: 1,
-                size: "1024x1024",
-                quality: "standard",
+                size: "1792x1024", // Wide format for Fiverr thumbnails
+                quality: "hd",
             });
 
             return response.data?.[0]?.url || '';
